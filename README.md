@@ -5,22 +5,27 @@
 
 - [Isabelle AFP](https://www.isa-afp.org/download/) (unzip the AFP to your PATH, e.g. `/YOUR-PATH/afp`)
 
+_Make sure you have installed some basic libs, e.g. gcc, git_
+
 ```shell
 
 # set PATH 
 cd ~
-vim. bashrc # export PATH=$PATH:/YOUR-PATH/Isabelle2024/bin:...
+vim. bashrc 
+# export PATH=$PATH:/YOUR-PATH/Isabelle2024/bin:...
 source .bashrc
 
 # test isabelle/hol
-isabelle version # Isabelle2024
+isabelle version
+# Isabelle2024
 
 # config AFP
 cd /YOUR-PATH/afp/thys
-isabelle components -u . # Add AFP to ...
+isabelle components -u .
+# Add AFP to Isabelle
 
-# go to CertSBF folder and open this project in jedit
-cd /YOUR-PATH/CertSBF
+# go to this repo folder and open this project in jedit
+cd /YOUR-PATH/this-repo
 
 # if using WSL, firstly adding the following libs, then 
 # do make, the proof checking requires about 30 min~
