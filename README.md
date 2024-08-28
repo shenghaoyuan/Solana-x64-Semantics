@@ -22,7 +22,8 @@ isabelle components -u . # Add AFP to ...
 # go to CertSBF folder and open this project in jedit
 cd /YOUR-PATH/CertSBF
 
-# if using WSL, firstly adding the following libs, then do make
+# if using WSL, firstly adding the following libs, then 
+# do make, the proof checking requires about 30 min~
 make
 ```
 ## Install on WSL
@@ -31,13 +32,11 @@ make
 sudo apt-get install libxi6 libxtst6 libxrender1 fontconfig
 ```
 
+# Link to Paper
+- Section 3: (Syntax)[theory/x64Syntax.thy], (Semantics)[theory/x64Semantics.thy]
+- Section 4: (x64 Encoder)[theory/x64Assembler.thy], (x64 Decoder)[theory/x64Disassembler.thy], (x64 Encoder)[theory/x64Assembler.thy]
+- Section 5: (Lemma1 Encoder implies Decoder)[theory/x64DecodeProof.thy] (done), (Lemma2 Decoder implies Encoder)[theory/x64EncodeProof.thy] (WIP), (Theorem 1 Encoder-Decoder equivalence).
+
 
 # x64 Reference
 As Solana rBPF has a x86_64 JIT compiler which involves of ISA instructions encoding formats, we refer to [x64 Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200), and if you read the comment with `P123` in the isabelle/hol file, which means, the source text description could be found in the x64 Manual `Page 123`. Good Luck~
-
-
-# Note
-- `static_analysis.rs` is a test for generated jited code, skip it now
-- `static_analysis.rs#276L: self.cfg_nodes.entry(insn.ptr + 1).or_default();` should be removed?
-- `static_analysis.rs#311L: std::mem::swap(&mut self.cfg_nodes, &mut cfg_nodes);`, why swap?
-- `static_analysis.rs#324L: std::mem::swap(&mut self.cfg_nodes, &mut cfg_nodes);`, now cfg_nodes are empty?

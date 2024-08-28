@@ -1,7 +1,7 @@
 theory x64_encode_mov_rm_1
 imports
   Main
-  rBPFCommType
+  rBPFCommType rBPFSyntax
   x64Syntax BitsOpMore
 begin
 
@@ -43,7 +43,7 @@ lemma [simp]: "and 3 ((v::u8) >> 6) = 1 \<Longrightarrow> n < 8 \<Longrightarrow
     done
   done
 
-lemma encode_mov_rm_1_subgoal_1: "and 3 ((v::u8) >> 6) = 1 \<Longrightarrow> 
+lemma encode_mov_rm_1_subgoal_1: "and 3 ((v::u8) >> 6) = 1 \<Longrightarrow> n < 8 \<Longrightarrow>
   bit v n \<Longrightarrow> \<not> bit (64::int) n \<Longrightarrow> bit (192::int) n \<Longrightarrow> False"
   apply (cases n, simp_all)
   subgoal for n1 apply (cases n1, simp_all)

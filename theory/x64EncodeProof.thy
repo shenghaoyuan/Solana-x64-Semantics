@@ -1,7 +1,7 @@
 theory x64EncodeProof
 imports
   Main
-  rBPFCommType
+  rBPFCommType rBPFSyntax
   x64Assembler x64Disassembler
   x64_encode_movl_rr_1 x64_encode_movl_rr_3
   x64_encode_movl_rr_4 x64_encode_movl_rr_5 x64_encode_movl_rr_6

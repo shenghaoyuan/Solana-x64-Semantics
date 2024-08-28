@@ -94,8 +94,8 @@ text \<open> skip float registers, as Solana rBPF doesn't deal with float \<clos
 
 datatype crbit = ZF | CF | PF | SF | OF
 
-datatype preg = PC | IR ireg | CR crbit | RA | TSC
-          
+datatype preg = PC | IR ireg | CR crbit | TSC
+
 abbreviation "RIP \<equiv> PC"  \<comment> \<open> the RIP register in x86-64 (x64) architecture is the equivalent of the program counter (PC) in many other architectures.  \<close>
   
 abbreviation "SP \<equiv> RSP" 
@@ -103,13 +103,57 @@ abbreviation "SP \<equiv> RSP"
 type_synonym label = nat
 
 datatype addrmode =
-  Addrmode "ireg option" "(ireg * int) option" int
+  Addrmode "ireg option" "(ireg * u8) option" u32
 
 datatype testcond =
     Cond_e | Cond_ne
   | Cond_b | Cond_be | Cond_ae | Cond_a
   | Cond_l | Cond_le | Cond_ge | Cond_g
   | Cond_p | Cond_np
+
+fun u8_of_cond :: "testcond \<Rightarrow> u8" where
+"u8_of_cond Cond_b  = 2" |  (* B, NAE: Below, Not above or equal *)
+"u8_of_cond Cond_ae = 3" |  (* NB, AE: Not below, Above or equal *)
+"u8_of_cond Cond_e  = 4" |  (* E, Z: Equal, Zero *)
+"u8_of_cond Cond_ne = 5" |  (* NE, NZ: Not equal, Not zero *)
+"u8_of_cond Cond_be = 6" |  (* BE, NA: Below or equal, Not above *)
+"u8_of_cond Cond_a  = 7" |  (* NBE, A: Not below or equal, Above *)
+"u8_of_cond Cond_p  = 10" | (* P, PE: Parity, Parity Even *)
+"u8_of_cond Cond_np = 11" | (* NP, PO: Not parity, Parity Odd *)
+"u8_of_cond Cond_l  = 12" | (* L, NGE: Less than, Not greater than or equal *)
+"u8_of_cond Cond_ge = 13" | (* NL, GE: Not less than, Greater than or equal to *)
+"u8_of_cond Cond_le = 14" | (* LE, NG: Less than or equal to, Not greater than *)
+"u8_of_cond Cond_g  = 15"   (* NLE, G: Not less than or equal to, Greater*)
+
+definition cond_of_u8 :: "u8 \<Rightarrow> testcond option" where
+"cond_of_u8 i = (
+  if i = 2 then
+    Some Cond_b
+  else  if i = 3 then
+    Some Cond_ae
+  else  if i = 4 then
+    Some Cond_e
+  else  if i = 5 then
+    Some Cond_ne
+  else  if i = 6 then
+    Some Cond_be
+  else  if i = 7 then
+    Some Cond_a
+  else  if i = 10 then
+    Some Cond_p
+  else  if i = 11 then
+    Some Cond_np
+  else  if i = 12 then
+    Some Cond_l
+  else  if i = 13 then
+    Some Cond_ge
+  else  if i = 14 then
+    Some Cond_le
+  else  if i = 15 then
+    Some Cond_g
+  else
+    None
+)"
 
 (** Instructions.  IA32 instructions accept many combinations of
   registers, memory references and immediate constants as arguments.
@@ -139,25 +183,31 @@ datatype testcond =
 
 datatype instruction =
   (** Moves *)
+
     Pmovl_rr ireg ireg       (**r [mov] (integer) *)
   | Pmovq_rr ireg ireg       (**r [mov] (integer) *)
   | Pmovl_ri ireg u32        (**imm   to reg *)
   | Pmovq_ri ireg u64        (**imm32 to qwordreg *)
-  | Pmov_rm ireg addrmode  memory_chunk
+  | Pmov_rm ireg addrmode memory_chunk
   | Pmov_mr addrmode ireg memory_chunk
-  | Pmov_mi addrmode u32  memory_chunk       (**imm to mem *)
-  | Pcmov testcond ireg ireg
+  | Pmov_mi addrmode u32  memory_chunk   (**imm to mem *)
+  | Pcmovl testcond ireg ireg
+  | Pcmovq testcond ireg ireg
   | Pxchgq_rr ireg ireg
+  | Pxchgq_rm ireg addrmode memory_chunk
   (** Moves with conversion *)
-    | Pmovsq_rr ireg ireg     (**r [movsl] (32-bit sign-extension) *)
+  | Pmovsq_rr ireg ireg     (**r [movsl] (32-bit sign-extension) *)
+  | Pcdq 
+  | Pcqo
   (** Integer arithmetic *)
-  | Pleal ireg addrmode
   | Pleaq ireg addrmode
   | Pnegl ireg
   | Pnegq ireg
   | Paddq_rr ireg ireg
   | Paddl_rr ireg ireg
   | Paddl_ri ireg u32
+  | Paddw_ri ireg u16
+  | Paddq_mi addrmode u32 memory_chunk
   | Psubl_rr ireg ireg
   | Psubq_rr ireg ireg
   | Psubl_ri ireg u32
@@ -194,17 +244,31 @@ datatype instruction =
   | Prolw_ri ireg u8
   | Prorl_ri ireg u8
   | Prorq_ri ireg u8
+  | Pbswapl ireg
+  | Pbswapq ireg
 
   | Ppushl_r ireg
   | Ppushl_i u32
+  | Ppushq_m addrmode memory_chunk
   | Ppopl  ireg
 
-  | Pjcc testcond i32
-  | Pjmp i32
+  | Ptestl_rr ireg ireg
+  | Ptestq_rr ireg ireg
+  | Ptestl_ri ireg u32
+  | Ptestq_ri ireg u32
+  | Pcmpl_rr ireg ireg
+  | Pcmpq_rr ireg ireg
+  | Pcmpl_ri ireg u32
+  | Pcmpq_ri ireg u32
+
+  | Pjcc testcond u32
+  | Pjmp u32
   | Pcall_r ireg
-  | Pcall_i i32
+  | Pcall_i u32
+  | Pret
   | Prdtsc
   | Pnop
+  | P
 (*
   | Ppushq_m addrmode  memory_chunk
   | Pmovzb_rr ireg ireg     (**r [movzb] (8-bit zero-extension) *)
