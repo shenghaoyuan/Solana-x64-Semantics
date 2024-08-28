@@ -1,4 +1,4 @@
-theory x64InvertibilityProof
+theory x64EquivalenceProof
 imports
   Main
   rBPFCommType
@@ -13,7 +13,7 @@ lemma CA2 [simp]: "list_in_list l_bin pc l \<Longrightarrow> x64_decode pc l = S
   (**r it is proven in x64ConsistencyProof2.thy *)
   sorry
 
-lemma assemble_disassemble_consistency_iff: "list_in_list l_bin pc l \<Longrightarrow> 
+lemma assemble_disassemble_equivalence_iff: "list_in_list l_bin pc l \<Longrightarrow> 
 (x64_decode pc l = Some (length l_bin, ins)) = (Some l_bin = x64_encode ins)"
   by (blast intro: CA1 dest: CA2)
 
