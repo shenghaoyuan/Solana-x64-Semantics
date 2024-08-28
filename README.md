@@ -39,7 +39,7 @@ sudo apt-get install libxi6 libxtst6 libxrender1 fontconfig
 
 # Link to Paper
 - Section 3: [Syntax](theory/x64Syntax.thy), [Semantics](theory/x64Semantics.thy)
-- Section 4: [x64 Encoder](theory/x64Assembler.thy), [x64 Decoder](theory/x64Disassembler.thy), [x64 Encoder](theory/x64Assembler.thy)
+- Section 4: [x64 Encoder](theory/x64Assembler.thy), [x64 Decoder](theory/x64Disassembler.thy)
 - Section 5: [Lemma1 Encoder implies Decoder](theory/x64DecodeProof.thy) (done), [Lemma2 Decoder implies Encoder](theory/x64EncodeProof.thy) (WIP), [Theorem 1 Encoder-Decoder equivalence](theory/x64InvertibilityProof.thy).
 
 
