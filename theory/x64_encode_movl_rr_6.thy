@@ -5,6 +5,7 @@ imports
   x64Syntax BitsOpMore
 begin
 
+
 lemma encode_movl_rr_6_subgoal_1: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> and 3 ((k::u8) >> 6) = 3 \<Longrightarrow>
   \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> and 1 v = 1 \<Longrightarrow> bit v 2 \<Longrightarrow>
   n < 8 \<Longrightarrow> bit v n \<Longrightarrow> bit (69::int) n"
@@ -15,7 +16,7 @@ lemma encode_movl_rr_6_subgoal_1: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> a
         subgoal
           by (simp add: bit_iff_odd_drop_bit even_iff_mod_2_eq_zero numeral_3_eq_3 one_and_eq) 
         subgoal for n4 apply (cases n4, simp_all)
-          subgoal
+          subgoal 
             by (metis bit_1_0 bit_and_iff bit_numeral_Bit1_0 bit_word_iff_drop_bit_and eval_nat_numeral(2) not_bit_numeral_Bit0_0 numeral_3_eq_3 semiring_norm(26) semiring_norm(27))
           subgoal for n5 apply (cases n5, simp_all)
             subgoal for n6 apply (cases n6, simp_all)
@@ -47,9 +48,10 @@ lemma encode_movl_rr_6_subgoal_2: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> a
     done
   done
 
-lemma encode_movl_rr_6_subgoal_3: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> and 3 ((k::u8) >> 6) = 3 \<Longrightarrow>
-  \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> and 1 v = 1 \<Longrightarrow>
-  \<not> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit v n \<Longrightarrow> bit (65::int) n"
+lemma encode_movl_rr_6_subgoal_3: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow>
+    and 15 v \<noteq> 0 \<Longrightarrow> and 3 ((k::u8) >> 6) = 3 \<Longrightarrow>
+    u8_of_ireg src = or (and 8 ((v >> 2) << 3)) (and 7 (k >> 3)) \<Longrightarrow>
+    u8_of_ireg dst = or 8 (and 7 k) \<Longrightarrow> \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> and 1 v = 1 \<Longrightarrow> \<not> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit v n \<Longrightarrow> bit (65::int) n"
   apply (cases n, simp_all)
   subgoal for n1 apply (cases n1, simp_all)
     subgoal for n2 apply (cases n2, simp_all)

@@ -230,7 +230,7 @@ lemma encode_movq_rr_1: "
   apply (simp add: u8_of_ireg_of_u8_iff[symmetric])
   apply (unfold bitfield_insert_u8_def u8_of_bool_def Let_def)
   apply simp
-  subgoal by (cases "bit v 0"; cases "bit (v >> 2) 0", simp_all)    
+  subgoal by (cases "bit v 0"; cases "bit (v >> 2) 0", simp_all)
   done
 
 end

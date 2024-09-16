@@ -257,4 +257,8 @@ type_synonym x64_bin = "u8 list"
 lemma u8_of_ireg_of_u8_iff: "(u8_of_ireg r = i) = (ireg_of_u8 i = Some r)"
   by (cases r, auto simp add: ireg_of_u8_def)
 
+lemma u8_of_cond_of_u8_iff: "(u8_of_cond r = i) = (cond_of_u8 i = Some r)"
+  by (cases r, auto simp add: cond_of_u8_def)
+
+
 end
