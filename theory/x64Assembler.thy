@@ -266,7 +266,7 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
   \<comment> \<open> P2878 `CDQ : sign_extend_eax_edx `   -> ` 1001 1001 ` \<close>  
   Pcdq \<Rightarrow>
     Some [0x99] |
-  \<comment> \<open> P2878 `CQO : sign_extend_rax_rdx `   -> ` 0100 1001 1001 1001 ` \<close>
+  \<comment> \<open> P2878 `CQO : sign_extend_rax_rdx `   -> ` 0100 1000 1001 1001 ` \<close>
   Pcqo \<Rightarrow>
     Some [0x48, 0x99] |
   \<comment> \<open> P2876 `ADD register1 to register2` -> `0100 0R0B : 0000 000w : 11 reg1 reg2` \<close>

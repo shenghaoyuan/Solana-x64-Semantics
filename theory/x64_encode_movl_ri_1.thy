@@ -32,7 +32,5 @@ lemma encode_movl_ri_1: "
   subgoal for n
     apply (auto simp add: bit_simps)
     subgoal 
-
-
       done
 end
