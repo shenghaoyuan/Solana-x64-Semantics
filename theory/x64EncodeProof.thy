@@ -3,12 +3,13 @@ imports
   Main
   rBPFCommType
   x64Assembler x64Disassembler
-(*  x64_encode_movl_rr_1 x64_encode_movl_rr_3  x64_encode_movl_rr_4 x64_encode_movl_rr_5 x64_encode_movl_rr_6
+(*  x64_encode_movl_rr_1 x64_encode_movl_rr_3  x64_encode_movl_rr_4
   x64_encode_movq_rr_1
   x64_encode_mov_rm_1 x64_encode_mov_rm_2 x64_encode_mov_rm_3 x64_encode_mov_rm_4
-  x64_encode_cmovl_1 x64_encode_cmovl_2 x64_encode_cmovl_3
-  x64_encode_cmovq_1*)
+  x64_encode_cmovl_1 x64_encode_cmovl_3 x64_encode_cmovl_4
+  x64_encode_cmovq_1
   x64_encode_cqo_1
+  x64_encode_negl_r_1 x64_encode_negq_r_1*)x64_encode_negl_r_1 x64_encode_negl_r_2 x64_encode_negl_r_3 x64_encode_negl_r_4
 begin
 
 declare if_split_asm [split]
@@ -30,16 +31,32 @@ lemma x64_decode_encode_consistency:
   "list_in_list l_bin pc l \<Longrightarrow> x64_decode pc l = Some (length l_bin, ins) \<Longrightarrow> 
     Some l_bin = x64_encode ins"
   apply (cases ins; simp_all)
+                      prefer 3
+  subgoal for dst imm
+  \<comment> \<open> Pmovl_ri 20\<close> 
+    apply (unfold Let_def)
+    apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
+    apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+          apply (cases l_bin2, simp_all)
+          subgoal for l_bin3
+            apply (cases l_bin3, simp_all)
+            subgoal for l_bin4
+              apply (cases l_bin4, simp_all)
+              subgoal for l_bin5
+                apply (cases l_bin5, simp_all)
+                subgoal for t l_bin6
 
-
-                      prefer 15
 
 
 
 
 (*
 Proof done
-
   subgoal for dst src
   \<comment> \<open> Pmovl_rr 1\<close> 
     apply (unfold Let_def)
@@ -79,31 +96,8 @@ Proof done
           done
         done
       done
-
-    subgoal
-      apply (cases l_bin, simp_all)
-      subgoal for l_bin1
-        apply (cases l_bin1, simp_all)
-        subgoal for l_bin2
-        apply (cases l_bin2, simp_all)
-          subgoal for t l_bin3
-            using encode_movl_rr_5 by blast
-          done
-        done
-      done
-
-    subgoal
-      apply (cases l_bin, simp_all)
-      subgoal for l_bin1
-        apply (cases l_bin1, simp_all)
-        subgoal for l_bin2
-          apply (cases l_bin2, simp_all)
-          subgoal for t l_bin3
-            using encode_movl_rr_6 by blast
-          done
-        done
-      done
     done
+
 
   subgoal for dst src
   \<comment> \<open> Pmovq_rr 2\<close> 
@@ -150,7 +144,7 @@ Proof done
           subgoal for l_bin3
             apply (cases l_bin3, simp_all)
             subgoal for t l_bin4
-              using encode_cmovl_2 by blast
+              using encode_cmovl_3 by blast
             done
           done
         done
@@ -165,7 +159,7 @@ Proof done
           subgoal for l_bin3
             apply (cases l_bin3, simp_all)
             subgoal for t l_bin4
-              using encode_cmovl_3
+              using encode_cmovl_4
               by (simp add: Suc3_eq_add_3 add.commute)
             done
           done
@@ -248,16 +242,115 @@ Proof done
     done
   done
 
-
-*)
-
-
-
-(*
-  subgoal for dst imm
-  \<comment> \<open> Pmovl_ri 3\<close>
+  subgoal for dst  
+    \<comment> \<open> Pnegl_r 16\<close> 
+    apply (unfold Let_def)
     apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
     apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for t l_bin2
+          using encode_negl_r_1 by blast 
+        done
+      done
+
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for t l_bin2
+          using encode_negl_r_2 by blast 
+        done
+      done
+
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+          apply (cases l_bin2, simp_all)
+        subgoal for t l_bin3
+          using encode_negl_r_3 by blast 
+        done
+      done
+    done
+
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+          apply (cases l_bin2, simp_all)
+        subgoal for t l_bin3
+          using encode_negl_r_4 by blast 
+        done
+      done
+    done
+  done
+
+  subgoal for dst  
+    \<comment> \<open> Pnegq_r 17\<close> 
+    apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
+    apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+          apply (cases l_bin2, simp_all)
+          subgoal for t l_bin3
+            using encode_negq_r_1 by blast  \<comment> \<open> TODO\<close> 
+
+        done
+      done
+
+  subgoal for dst src
+  \<comment> \<open> Paddq_rr 18\<close> 
+    apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
+    apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
+    subgoal
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+          apply (cases l_bin2, simp_all)
+          subgoal for t l_bin3
+          using encode_movq_rr_1 by blast
+        done
+      done
+    done
+  done
+
+
+  subgoal for dst src
+  \<comment> \<open> Paddl_rr 19\<close> 
+    apply (unfold Let_def)
+    apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
+    apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
+    subgoal
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for t l_bin2
+          using encode_movl_rr_1 by blast
+        done
+      done
+
+    subgoal by (unfold bitfield_insert_u8_def;simp)
+
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+        apply (cases l_bin2, simp_all)
+        subgoal for t l_bin3
+          using encode_movl_rr_3 by blast
+        done
+      done
+    done
 
     subgoal
       apply (cases l_bin, simp_all)
@@ -265,16 +358,22 @@ Proof done
         apply (cases l_bin1, simp_all)
         subgoal for l_bin2
           apply (cases l_bin2, simp_all)
-          subgoal for l_bin3
-            apply (cases l_bin3, simp_all)
-            subgoal for l_bin4
-              apply (cases l_bin4, simp_all)
-              subgoal for l_bin5
-                apply (cases l_bin5, simp_all)
-                subgoal for t l_bin6
-                 
-
+          subgoal for t l_bin3
+            using encode_movl_rr_4 by blast
+          done
+        done
+      done
     done
+
+
+
+
+*)
+
+
+
+(*
+
 
   subgoal for dst addr mc
   \<comment> \<open> Pmov_rm 5\<close> 

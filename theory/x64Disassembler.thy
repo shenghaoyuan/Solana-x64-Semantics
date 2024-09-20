@@ -504,9 +504,7 @@ definition x64_decode :: "nat \<Rightarrow> x64_bin \<Rightarrow> (nat * instruc
                 if w = 1 \<and> x = 0 then   \<comment> \<open> rex should be `W=1` and `X=0`\<close> 
                   Some (3, Pmovq_rr dst src) 
                 else if w = 0 \<and> x = 0 then
-                  if r = 0 \<and> b = 0 then None
-                  else 
-                    Some (3, Pmovl_rr dst src)
+                  Some (3, Pmovl_rr dst src)
                 else None))) 
               \<comment> \<open> R6.5 [rex + opcode + modrm + displacement] \<close>
             else if modrm = 0b01 then

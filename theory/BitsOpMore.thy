@@ -44,7 +44,7 @@ lemma [simp]: "and 1 ((v::u8) >> 2) = 1 \<Longrightarrow> (and 8 ((v >> 2) << 3)
 lemma [simp]: "and 1 (v >> 2) = 1 \<Longrightarrow> and (or (and 8 (((v::u8) >> 2) << 3)) (and (and 7 (k >> 3)) (- 9))) 8 \<noteq> 0"
   apply (simp add: bit_eq_iff)
   apply (auto simp add: bit_simps)
-  apply (rule_tac x="3" in exI)
+  apply (rule_tac x="3" in exI) 
   apply (drule_tac x="0" in spec)
   apply simp
   done
