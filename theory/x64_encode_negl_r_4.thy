@@ -113,9 +113,8 @@ lemma encode_negl_r_1_subgoal_1: " and 7 ((v::u8) >> 3) = 3 \<Longrightarrow> bi
   apply (auto simp add: bit_simps)
   apply (drule_tac x="2" in spec) by simp
 
-lemma encode_negl_r_4_subgoal_5 : "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> and 15 v \<noteq> 0 \<Longrightarrow>
-    and 3 ((k::u8) >> 6) = 3 \<Longrightarrow> and 7 (k >> 3) = 3 \<Longrightarrow>
-    \<not> bit v 3 \<Longrightarrow> \<not> bit v 2 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> n < 8 \<Longrightarrow> bit k n \<Longrightarrow> \<not> bit (192::u8) n \<Longrightarrow> \<not> bit (24::u8) n \<Longrightarrow> bit (7::u8) n"
+lemma encode_negl_r_4_subgoal_5 : " and 3 ((k::u8) >> 6) = 3 \<Longrightarrow> and 7 (k >> 3) = 3 \<Longrightarrow> 
+      n < 8 \<Longrightarrow> bit k n \<Longrightarrow> \<not> bit (192::u8) n \<Longrightarrow> \<not> bit (24::u8) n \<Longrightarrow> bit (7::u8) n"
   apply (cases n, simp_all)
   subgoal for n1 apply (cases n1, simp_all)
     subgoal for n2 apply (cases n2, simp_all)

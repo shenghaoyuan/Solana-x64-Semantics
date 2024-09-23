@@ -47,7 +47,7 @@ lemma encode_movl_rr_4_subgoal_2: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> a
 
 
 lemma encode_movl_rr_4_subgoal_3 : "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> and 15 v \<noteq> 0 \<Longrightarrow>
-  \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> bit v 0 \<Longrightarrow> \<not> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit v n \<Longrightarrow> bit (65::u8) n"
+  \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> bit v 0 \<Longrightarrow> \<not> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit v n \<Longrightarrow> bit (65::int) n"
   apply (cases n, simp_all)
   subgoal for n1 apply (cases n1, simp_all)
     subgoal for n2 apply (cases n2, simp_all)
@@ -71,7 +71,7 @@ lemma encode_movl_rr_4_subgoal_3 : "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> 
 
 
 lemma encode_movl_rr_4_subgoal_4: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> and 15 v \<noteq> 0 \<Longrightarrow>
-     \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> bit v 0 \<Longrightarrow> \<not> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit (65::u8) n \<Longrightarrow> bit v n"
+     \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> bit v 0 \<Longrightarrow> \<not> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit (65::int) n \<Longrightarrow> bit v n"
   apply (cases n, simp_all)
   subgoal for n1 apply (cases n1, simp_all)
     subgoal for n2 apply (cases n2, simp_all)
@@ -88,7 +88,7 @@ lemma encode_movl_rr_4_subgoal_4: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> a
   done
 
 lemma encode_movl_rr_4_subgoal_5 : "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> and 15 v \<noteq> 0 \<Longrightarrow>
-  \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> \<not> bit v 0 \<Longrightarrow> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit v n \<Longrightarrow> bit (68::u8) n"
+  \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> \<not> bit v 0 \<Longrightarrow> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit v n \<Longrightarrow> bit (68::int) n"
   apply (cases n, simp_all)
   subgoal for n1 apply (cases n1, simp_all)
     subgoal for n2 apply (cases n2, simp_all)
@@ -110,7 +110,7 @@ lemma encode_movl_rr_4_subgoal_5 : "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> 
 
 
 lemma encode_movl_rr_4_subgoal_6: "and 15 ((v::u8) >> 4) = 4 \<Longrightarrow> and 15 v \<noteq> 0 \<Longrightarrow>
-     \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> \<not> bit v 0 \<Longrightarrow> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit (68::u8) n \<Longrightarrow> bit v n"
+     \<not> bit v 3 \<Longrightarrow> \<not> bit v (Suc 0) \<Longrightarrow> \<not> bit v 0 \<Longrightarrow> bit v 2 \<Longrightarrow> n < 8 \<Longrightarrow> bit (68::int) n \<Longrightarrow> bit v n"
   apply (cases n, simp_all)
   subgoal for n1 apply (cases n1, simp_all)
     subgoal for n2 apply (cases n2, simp_all)
