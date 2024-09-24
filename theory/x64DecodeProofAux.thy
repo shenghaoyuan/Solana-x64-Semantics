@@ -253,6 +253,10 @@ lemma bit_n_plus_le: "(v::u32) \<le> 2^n - 1 \<Longrightarrow> bit v (n+m) = Fal
 
 lemma Suc7_eq_add_7:"(Suc (Suc (Suc (Suc (Suc (Suc (Suc n))))))) = 7+n" by simp
 
+lemma word_not_set_inverse:"(ofs::('a::len) word) \<le> 2^n-1 \<longleftrightarrow> - (2^n) \<le> (not ofs)"
+  by (smt (z3) add_diff_cancel_left' add_uminus_conv_diff linorder_not_le minus_diff_commute
+      not_eq_complement sub_wrap word_le_minus_mono_left word_less_1 word_sub_le_iff)
+ 
 lemma bit_n_plus_le_7: "(v::u32) \<le> 127 \<Longrightarrow> bit v (7+m) = False"
   using bit_n_plus_le [of v 7 m] by simp
 
@@ -261,66 +265,55 @@ lemma u32_le_127_ge_7_False: "(ofs::u32) \<le> 127 \<Longrightarrow>
   apply (simp only: Suc7_eq_add_7)
   using bit_n_plus_le_7 [of ofs n] by simp
 
-(*
-lemma [simp]: "n < 32 \<Longrightarrow> - (2 * 2 ^ n) \<le> v \<Longrightarrow> - (2 ^ n) \<le> (v::u32) div 2"
-  apply (cases "even v")
-  subgoal
-    apply (elim evenE)
-    subgoal for b
-      apply simp
-
-lemma bit_minus_n_ge: "n < 32 \<Longrightarrow> - (2^n) \<le> (v::u32) \<Longrightarrow> bit v n"
-  apply (simp add: bit_iff_odd)
-  apply (induction n arbitrary: v)
-  subgoal for v apply simp
-    using dvd_minus_iff odd_one word_order.extremum_uniqueI by blast
-
-  subgoal for n v apply simp *)
-
+lemma len_word:
+  "m < LENGTH ('a) \<Longrightarrow> bit (k::'a::len word) m \<longleftrightarrow> \<not>(bit (not k) m)"
+  by (simp add: bit_not_iff)
+ 
+lemma bit_n_plus_gt: 
+  assumes a0:"m + n < 32" and a1:"-(2^m) \<le> (v::u32)" shows "bit v (m + n) = True"
+proof-
+  have v0:"m + n < LENGTH(32)" using a0 by auto
+  
+  have u:"\<forall>v \<le> ((2::u32)^m)-1. bit v (m + n) = False"
+    by (simp add: bit_n_plus_le)
+  then obtain v' where "bit v' (m + n) = False" and "v'\<le>((2::u32)^m)-1"
+    by auto
+  then have "not v' \<ge> -((2::u32)^m)" and "bit v' (m + n) = False"
+    by (auto simp add: word_not_set_inverse)
+  then show ?thesis using len_word[OF v0, of v']
+    by (metis a1 bit.double_compl len_word u v0 word_not_set_inverse) 
+qed
+  
+declare [[show_types]]
 lemma u32_ge_minus_128_ge_7_True: "n < 25 \<Longrightarrow> -128 \<le> (ofs::u32) \<Longrightarrow>
-  bit ofs (Suc (Suc (Suc (Suc (Suc (Suc (Suc n))))))) = True" sorry
+  bit ofs (Suc (Suc (Suc (Suc (Suc (Suc (Suc n))))))) = True"
+  apply (simp only: Suc7_eq_add_7)
+  using bit_n_plus_gt by auto
+ 
+lemma scast_un_aa:
+   assumes a0:"LENGTH('a) = m" and a1:"LENGTH('b) = n" and a2:"m \<le> n"
+ shows "\<forall>k. k \<le> m - 1 \<longrightarrow> bit ((scast (ofs::('b::len word)))::'a::len word) k = bit ofs k"
+  using a0 a1 a2 bit_ucast_iff down_cast_same is_down.rep_eq by fastforce
+  
 
+lemma scast_un_bb:
+   assumes a0:"LENGTH('a) = m" and a1:"LENGTH('b) = n" and a2:"m \<le> n" and
+    a3: "\<forall>k. k \<le> m - 1 \<longrightarrow> bit ((v::'a::len word)) k = bit (ofs::('b::len word)) k" and
+    a4:"v\<le>0" and a5:"\<forall>k. k \<ge>  m - 1 \<and> k \<le> n - 1 \<longrightarrow> (bit ofs k)"
+  shows "(scast v)  = ofs"
+  using a0 a2 a3 a4 a5 bit_last_iff by auto
 
 lemma scast_u32_scast_u8_eq_simp: "ofs \<le> 127 \<or> - 128 \<le> ofs \<Longrightarrow>
   (v::u8) = scast (ofs::u32) \<Longrightarrow> (scast v) = ofs"
-  apply simp
+  apply simp                   
   apply (simp only: scast_eq)
 
   apply (simp add: bit_eq_iff)
   apply (auto simp add: bit_simps)
-  subgoal for n
-    apply (drule_tac x="n" in spec)
-    apply (cases n, simp_all)
-    subgoal for n1 apply (cases n1, simp_all)
-      subgoal for n2 apply (cases n2, simp_all)
-        subgoal for n3 apply (cases n3, simp_all)
-          subgoal for n4 apply (cases n4, simp_all)
-            subgoal for n5 apply (cases n5, simp_all)
-              subgoal for n6 apply (cases n6, simp_all add: u32_le_127_ge_7_False)
-                done
-              done
-            done
-          done
-        done
-      done
-    done
-
-  subgoal for n
-    apply (drule_tac x="n" in spec)
-    apply (cases n, simp_all)
-    subgoal for n1 apply (cases n1, simp_all)
-      subgoal for n2 apply (cases n2, simp_all)
-        subgoal for n3 apply (cases n3, simp_all)
-          subgoal for n4 apply (cases n4, simp_all)
-            subgoal for n5 apply (cases n5, simp_all)
-              subgoal for n6 apply (cases n6, simp_all add: u32_le_127_ge_7_False)
-                done
-              done
-            done
-          done
-        done
-      done
-    done
+     apply (metis BitM.simps(1) BitM.simps(2) BitM.simps(3) 
+           eval_nat_numeral(3) min_def numeral_3_eq_3 numeral_nat(2) u32_le_127_ge_7_False)
+    apply (metis bit_n_plus_le_7 min.absorb2 nat_le_linear 
+           ordered_cancel_comm_monoid_diff_class.add_diff_inverse)
 
   subgoal for n
     apply (drule_tac x="n" in spec)
@@ -355,8 +348,8 @@ lemma scast_u32_scast_u8_eq_simp: "ofs \<le> 127 \<or> - 128 \<le> ofs \<Longrig
         done
       done
     done
-  done
-
+done
+  
 lemma scast_u32_scast_u8_eq: "ofs \<le> 127 \<or> - 128 \<le> ofs \<Longrightarrow>
   scast (ofs::u32) = (v::u8) \<Longrightarrow> (scast v) = ofs"
   using scast_u32_scast_u8_eq_simp by blast
