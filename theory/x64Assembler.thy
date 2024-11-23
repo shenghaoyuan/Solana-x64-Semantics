@@ -7,8 +7,8 @@ imports
   x86CommType x64Syntax
 begin
 
-fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
-"x64_encode ins = (
+fun x64_encoder :: "instruction \<Rightarrow> x64_bin option" where
+"x64_encoder ins = (
   case ins of
   \<comment> \<open> P518 `Operand-size override prefix is encoded using 66H` \<close> 
   \<comment> \<open> P2887 `ROL : register by immediate count` -> `0x66 1100 000w : 11 000 reg : imm8` \<close>
@@ -177,7 +177,7 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
       False \<comment> \<open> X \<close>
       (and (u8_of_ireg rd) 0b1000 \<noteq> 0) \<comment> \<open> B \<close>
       ) in
-    let (op:: u8) = bitfield_insert_u8 0 3 0xb8 (u8_of_ireg rd) in
+    let (op::u8) = bitfield_insert_u8 0 3 0xb8 (u8_of_ireg rd) in
       Some ([rex, op] @ u8_list_of_u64 n)|
   \<comment> \<open> P2882 `MOV immediate32 to memory64 (zero extend)` -> ` 0100 10XB 1100 0111 : mod 000 r/m : imm32` \<close>
   Pmov_mi a n M64 \<Rightarrow>(
@@ -216,8 +216,8 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
       False \<comment> \<open> X \<close>
       (and (u8_of_ireg r1) 0b1000 \<noteq> 0) \<comment> \<open> B \<close>
       ) in
-    let (ex:: u8) = 0x0f in
-    let (op:: u8) = bitfield_insert_u8 0 4 0x40 (u8_of_cond t) in   \<comment> \<open> 45 : NZ/NE （ZF=0 \<close>   
+    let (ex::u8) = 0x0f in
+    let (op::u8) = bitfield_insert_u8 0 4 0x40 (u8_of_cond t) in   \<comment> \<open> 45 : NZ/NE （ZF=0 \<close>   
     let (rop::u8) = construct_modsib_to_u8 0b11 (u8_of_ireg rd) (u8_of_ireg r1) in
     if rex = 0x40 then
       Some [ex, op, rop]
@@ -231,8 +231,8 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
       False \<comment> \<open> X \<close>
       (and (u8_of_ireg r1) 0b1000 \<noteq> 0) \<comment> \<open> B \<close>
       ) in
-    let (ex:: u8) = 0x0f in
-    let (op:: u8) = bitfield_insert_u8 0 4 0x40 (u8_of_cond t) in  \<comment> \<open> 45 : NZ/NE （ZF=0 \<close> 
+    let (ex::u8) = 0x0f in
+    let (op::u8) = bitfield_insert_u8 0 4 0x40 (u8_of_cond t) in  \<comment> \<open> 45 : NZ/NE （ZF=0 \<close> 
     let (rop::u8) = construct_modsib_to_u8 0b11 (u8_of_ireg rd) (u8_of_ireg r1) in
       Some [rex, ex, op, rop] |
   \<comment> \<open> P2893 `XCHG: register1 with register2 `   -> ` 0100 1R0B 1000 011w : 11 reg1 reg2 ` \<close>
@@ -784,8 +784,8 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
       False \<comment> \<open> X \<close>
       (and (u8_of_ireg rd) 0b1000 \<noteq> 0) \<comment> \<open> B \<close>
       ) in
-    let (ex:: u8) = 0x0f in
-    let (op:: u8) = bitfield_insert_u8 0 3 0xc8 (u8_of_ireg rd) in
+    let (ex::u8) = 0x0f in
+    let (op::u8) = bitfield_insert_u8 0 3 0xc8 (u8_of_ireg rd) in
       if rex = 0x40 then
         Some [ex, op]
       else 
@@ -798,8 +798,8 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
       False \<comment> \<open> X \<close>
       (and (u8_of_ireg rd) 0b1000 \<noteq> 0) \<comment> \<open> B \<close>
       ) in
-    let (ex:: u8) = 0x0f in
-    let (op:: u8) = bitfield_insert_u8 0 3 0xc8 (u8_of_ireg rd) in
+    let (ex::u8) = 0x0f in
+    let (op::u8) = bitfield_insert_u8 0 3 0xc8 (u8_of_ireg rd) in
       Some [rex, ex, op] |
   \<comment> \<open> P2881 `LEA: Load Effective Address: in qwordregister `  -> `0100 1RXB : 1000 1101 : mod qwordreg r/m` \<close>
   Pleaq rd a \<Rightarrow>(
@@ -983,8 +983,8 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
       Some ([op] @ (u8_list_of_u32 (ucast d)))|
   \<comment> \<open> P2880 `JCC: full displacement` -> `0000 1111 : 1000 tttn : full displacement` \<close>
   Pjcc t d \<Rightarrow>
-    let (ex:: u8) = 0x0f in
-    let (op:: u8) = bitfield_insert_u8 0 4 0x80 (u8_of_cond t) in
+    let (ex::u8) = 0x0f in
+    let (op::u8) = bitfield_insert_u8 0 4 0x80 (u8_of_cond t) in
     Some ([ex, op] @ (u8_list_of_u32 (ucast d))) |
   \<comment> \<open> P2878 `CALL: register indirect`   -> `0100 W00Bw 1111 1111 : 11 010 reg ` \<close>
   Pcall_r r1 \<Rightarrow>
@@ -1061,5 +1061,28 @@ fun x64_assemble :: "x64_asm \<Rightarrow> x64_bin option" where
 fun list_in_list :: "'a list \<Rightarrow> nat \<Rightarrow> 'a list \<Rightarrow> bool" where
 "list_in_list [] _ _ = True" |
 "list_in_list (h#t) n l = (h = l!n \<and> list_in_list t (Suc n) l)"
+
+fun x64_encodes_aux :: "instruction list \<Rightarrow> x64_bin option list" where
+"x64_encodes_aux [] = [None]" |
+"x64_encodes_aux (h#t) = (let ins' = x64_encode h in 
+                        (case ins' of None \<Rightarrow> [None] |
+                                      Some v \<Rightarrow> [Some v] @ x64_encodes_aux t))"
+
+definition x64_encodes:: "instruction list \<Rightarrow> x64_bin list option" where
+"x64_encodes xs = (let x = x64_encodes_aux xs in if x = [None] then None  
+                   else Some (map Option.the (butlast x)))"
+
+primrec flat :: "'a list list => 'a list" where
+  "flat [] = []" |
+  "flat (x # xs) = x @ flat xs"
+
+definition x64_encodes_suffix:: "instruction list \<Rightarrow> x64_bin option" where
+"x64_encodes_suffix xs = (let l = x64_encodes xs in (if l = None then None else Some (flat (Option.the l))))"
+
+value "x64_encodes_aux [Pmovq_rr src dst,Pmovq_rr src dst]"
+value "x64_encodes [Pmovq_rr src dst,Pmovq_rr src dst]"
+value "x64_encode (Pmovq_rr src dst)"
+value "x64_encodes_suffix [Pmovq_rr src dst,Pmovq_rr src dst]"
+
 
 end

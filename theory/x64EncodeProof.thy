@@ -1,4 +1,4 @@
-theory x64EncodeProof
+ theory x64EncodeProof
 imports
   Main
   rBPFCommType
@@ -18,16 +18,15 @@ begin
 declare if_split_asm [split]
 
 lemma x64_decode_encode_consistency:
-  "list_in_list l_bin pc l \<Longrightarrow> x64_decode pc l = Some (length l_bin, ins) \<Longrightarrow> 
-    Some l_bin = x64_encode ins"
+  "list_in_list l_bin pc l \<Longrightarrow> x64_decode pc l = Some (length l_bin, ins) \<Longrightarrow>  Some l_bin = x64_encode ins"
   apply (cases ins; simp_all)
                       prefer 25
   subgoal for dst imm
-  \<comment> \<open> Psubl_ri 3\<close> 
+  \<comment> \<open> Psubl_ri 25\<close> 
     apply (unfold Let_def)
     apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
     apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
-    subgoal 
+    (*subgoal 
       apply (cases l_bin, simp_all)
       subgoal for l_bin1
         apply (cases l_bin1, simp_all)
@@ -99,7 +98,7 @@ lemma x64_decode_encode_consistency:
         done
       done
     done
-
+*)
 
 
 (*

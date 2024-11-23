@@ -13,6 +13,8 @@ type_synonym i32 = "32 sword"
 type_synonym u32 = "32 word"
 type_synonym i64 = "64 sword"
 type_synonym u64 = "64 word"
+
+
 type_synonym i128 = "128 sword"
 type_synonym u128 = "128 word"
 
@@ -45,7 +47,6 @@ definition i64_MAX :: "i64" where
 definition u64_MAX :: "u64" where
 "u64_MAX = 0xFFFFFFFFFFFFFFFF"
 
-
 record ebpf_binary =
 bpf_opc :: u8
 bpf_dst :: u4
@@ -53,7 +54,13 @@ bpf_src :: u4
 bpf_off :: i16
 bpf_imm :: i32
 
-type_synonym ebpf_bin = "ebpf_binary list"
+type_synonym ebpf_abin = "ebpf_binary list"
+
+(*
+consts INSN_SIZE::usize
+
+definition INSN_SIZE_def :: "usize" where
+"INSN_SIZE_def = 8" *)
 
 abbreviation bit_left_shift ::
   "'a :: len word \<Rightarrow> nat \<Rightarrow> 'a :: len word" (infix "<<" 50)
@@ -62,6 +69,12 @@ where "x << n \<equiv> push_bit n x"
 abbreviation bit_right_shift ::
   "'a :: len word \<Rightarrow> nat \<Rightarrow> 'a :: len word" (infix ">>" 50)
   where "x >> n \<equiv> drop_bit n x"
+
+definition arsh32 :: "i32 \<Rightarrow> nat \<Rightarrow> i32" where
+"arsh32 x n = (if bit x 31 then or (drop_bit n x) (((2^n) -1) << 32-n) else drop_bit n x)"
+
+definition arsh64 :: "i64 \<Rightarrow> nat \<Rightarrow> i64" where
+"arsh64 x n = (if bit x 63 then or (drop_bit n x) (((2^n) -1) << 64-n) else drop_bit n x)"
 
 fun unsigned_bitfield_extract_u8 :: "nat \<Rightarrow> nat \<Rightarrow> u8 \<Rightarrow> u8" where
 "unsigned_bitfield_extract_u8 pos width n = and ((2 ^ width) - 1) (n >> pos)"

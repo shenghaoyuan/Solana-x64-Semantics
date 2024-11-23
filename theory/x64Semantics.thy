@@ -134,6 +134,7 @@ definition exec_push :: "u64 \<Rightarrow> memory_chunk \<Rightarrow> mem \<Righ
       None \<Rightarrow> Stuck |
       Some m' => Next (nextinstr_nf sz (rs#(IR SP) <- nsp)) m'
 )"
+
   \<comment> \<open> near call \<close>
 definition exec_call :: "u64  \<Rightarrow> memory_chunk \<Rightarrow> mem \<Rightarrow> regset \<Rightarrow> val \<Rightarrow> outcome" where
 "exec_call sz chunk m rs v = (
