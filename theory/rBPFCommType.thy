@@ -238,4 +238,18 @@ lemma bit_power_k_add_m_lt: "n < k+m \<Longrightarrow> \<not> bit (2^(k+m)-2^k::
     done
   done
 
+
+fun list_in_list :: "'a list \<Rightarrow> nat \<Rightarrow> 'a list \<Rightarrow> bool" where
+"list_in_list [] _ _ = True" |
+"list_in_list (h#t) n l = (h = l!n \<and> list_in_list t (Suc n) l)"
+
+lemma list_in_list_prop: "list_in_list l2 (length l1) (l1@l2@l3)"
+  apply (induction l2 arbitrary: l1 l3)
+  subgoal for l1 l3
+    by simp
+  subgoal for a l2 l1 l3
+    apply simp
+    by (metis append.left_neutral append_Cons append_assoc length_append_singleton)
+  done
+
 end

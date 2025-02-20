@@ -1058,9 +1058,6 @@ fun x64_assemble :: "x64_asm \<Rightarrow> x64_bin option" where
 
 *)
 
-fun list_in_list :: "'a list \<Rightarrow> nat \<Rightarrow> 'a list \<Rightarrow> bool" where
-"list_in_list [] _ _ = True" |
-"list_in_list (h#t) n l = (h = l!n \<and> list_in_list t (Suc n) l)"
 
 fun x64_encodes_aux :: "instruction list \<Rightarrow> x64_bin option list" where
 "x64_encodes_aux [] = [None]" |
