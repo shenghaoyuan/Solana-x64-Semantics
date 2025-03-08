@@ -250,6 +250,7 @@ datatype instruction =
   | Pret
   | Prdtsc
   | Pnop
+  | P
 
 type_synonym x64_asm = "instruction list"
 type_synonym x64_bin = "u8 list"

@@ -12,7 +12,7 @@ imports
   x64_encode_negl_r_1 x64_encode_negl_r_2 x64_encode_negl_r_3 x64_encode_negl_r_4
   x64_encode_negq_r_1 
   x64_encode_movl_ri_1 x64_encode_movl_ri_2 x64_encode_movl_ri_3 x64_encode_movl_ri_4*)
-  x64_encode_movl_ri_1 x64_encode_movl_ri_2 x64_encode_movl_ri_3 x64_encode_movl_ri_4
+  x64_encode_subl_ri_1 x64_encode_subl_ri_2 x64_encode_subl_ri_3  x64_encode_movl_ri_3
 begin
 
 declare if_split_asm [split]
@@ -26,7 +26,7 @@ lemma x64_decode_encode_consistency:
     apply (unfold Let_def)
     apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
     apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
-    (*subgoal 
+    subgoal 
       apply (cases l_bin, simp_all)
       subgoal for l_bin1
         apply (cases l_bin1, simp_all)
@@ -39,8 +39,7 @@ lemma x64_decode_encode_consistency:
               subgoal for l_bin5
                 apply (cases l_bin5, simp_all)
                 subgoal for t l_bin6 
-                  using encode_movl_ri_1 [of _ _ _ "(Suc (Suc pc))"]
-                  by (smt (verit, best) BitM.simps(1) BitM.simps(2) Suc3_eq_add_3 add.commute eval_nat_numeral(3) nat_arith.suc1 numeral_nat(2))
+                  using encode_subl_ri_1 by presburger
                 done
               done
             done
@@ -61,7 +60,7 @@ lemma x64_decode_encode_consistency:
               subgoal for l_bin5
                 apply (cases l_bin5, simp_all)
                 subgoal for t l_bin6 
-                  using encode_movl_ri_2
+                  using encode_subl_ri_2
                   by (metis One_nat_def Suc_eq_plus1 list.sel(3) list.size(3) list.size(4) nat_1_add_1 numeral_3_eq_3 numeral_eq_iff semiring_norm(88) u32_of_u8_list_same) 
                 done
               done
@@ -89,7 +88,7 @@ lemma x64_decode_encode_consistency:
                   apply (cases l_bin6, simp_all)
                   subgoal for t l_bin7
                     apply (cases l_bin7, simp_all)
-                    using encode_movl_ri_4 by blast
+                    using x64_encode_subl_ri_3
                   done
                 done
               done
@@ -98,7 +97,7 @@ lemma x64_decode_encode_consistency:
         done
       done
     done
-*)
+
 
 
 (*

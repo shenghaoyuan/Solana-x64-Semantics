@@ -124,7 +124,7 @@ lemma encode_movl_ri_4_subgoal_k:"
                   u32_of_u8_list [l ! (pc + 3), l ! (pc + 4), l ! (pc + 5), l ! (pc + 6)] = Some imm; 
                   and 7 (k >> 3) = 0; \<not> bit v 2; \<not> bit v (Suc 0); and 3 (k >> 6) = 3; \<not> bit v 3; 
                   or 64 (and (and (and (and 1 (- 3)) (- 5)) (- 9)) (- 241)) \<noteq> 64; bit v 0; n < 8; bit k n; \<not> bit 192 n\<rbrakk> \<Longrightarrow> bit 7 n\<close> by blast
-        subgoal 
+        subgoal
           using encode_movl_ri_4_subgoal_3 by (meson bit_numeral_word_iff encode_movl_ri_4_subgoal_2)
         subgoal using encode_movl_ri_4_subgoal_3
           using encode_movl_rr_1_subgoal_4 by blast

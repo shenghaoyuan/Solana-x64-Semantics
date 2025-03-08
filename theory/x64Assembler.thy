@@ -7,8 +7,8 @@ imports
   x86CommType x64Syntax
 begin
 
-fun x64_encoder :: "instruction \<Rightarrow> x64_bin option" where
-"x64_encoder ins = (
+fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
+"x64_encode ins = (
   case ins of
   \<comment> \<open> P518 `Operand-size override prefix is encoded using 66H` \<close> 
   \<comment> \<open> P2887 `ROL : register by immediate count` -> `0x66 1100 000w : 11 000 reg : imm8` \<close>
