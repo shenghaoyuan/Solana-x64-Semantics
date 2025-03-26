@@ -1023,6 +1023,8 @@ fun x64_assemble :: "x64_asm \<Rightarrow> x64_bin option" where
   )
 )"
 
+value "x64_encode (Pmovq_rr RAX RBX)"
+
 (*
 definition x64_encode :: "instruction \<Rightarrow> x64_bin \<Rightarrow> x64_bin option" where
 "x64_encode ins l_bin = (

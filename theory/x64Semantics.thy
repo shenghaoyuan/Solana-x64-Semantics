@@ -222,8 +222,8 @@ definition exec_instr :: "instruction \<Rightarrow> u64 \<Rightarrow> regset \<R
   Pmovq_rr rd r1  \<Rightarrow> Next (nextinstr  sz (rs#(IR rd) <- (rs (IR r1)))) m |
   Pmovl_ri rd n   \<Rightarrow> Next (nextinstr  sz (rs#(IR rd) <- (Vint n))) m |    \<comment> \<open> load imm32 to reg \<close>
   Pmovq_ri rd n   \<Rightarrow> Next (nextinstr  sz (rs#(IR rd) <- (Vlong n))) m |   \<comment> \<open> load imm64 to reg \<close>
-  Pmov_rm  rd a c \<Rightarrow> exec_store  sz c m a rs (IR rd) [] |                 \<comment> \<open> load  mem to reg \<close>
-  Pmov_mr  a r1 c \<Rightarrow> exec_load   sz c m a rs (IR r1) |                    \<comment> \<open> store reg to mem \<close>
+  Pmov_rm  rd a c \<Rightarrow> exec_load   sz c m a rs (IR rd) |                    \<comment> \<open> load reg to mem \<close>
+  Pmov_mr  a r1 c \<Rightarrow> exec_store  sz c m a rs (IR r1) [] |                 \<comment> \<open> store  mem to reg \<close>
   Pcmovl   t rd r1\<Rightarrow> Next (nextinstr  sz (rs#(IR rd) <- (testVal32 t rs (rs (IR rd)) (rs (IR r1))))) m |
   Pcmovq   t rd r1\<Rightarrow> Next (nextinstr  sz (rs#(IR rd) <- (testVal64 t rs (rs (IR rd)) (rs (IR r1))))) m |
   Pxchgq_rr rd r1 \<Rightarrow> let tmp = rs (IR rd) in
@@ -334,23 +334,24 @@ definition exec_instr :: "instruction \<Rightarrow> u64 \<Rightarrow> regset \<R
   _               \<Rightarrow> Stuck
 )"
 
+  \<comment> \<open> Validation \<close>
+
 fun x64_interp :: "nat \<Rightarrow> x64_bin \<Rightarrow> outcome \<Rightarrow> outcome" where
 "x64_interp 0 _ _ = Stuck" |
 "x64_interp (Suc n) l st = (
   case st of
-  Stuck \<Rightarrow> Stuck |
-  Next rs m \<Rightarrow> (
-    case rs PC of
-    Vlong v \<Rightarrow> (
-      case x64_decode (unat v) l of
-      None \<Rightarrow> Stuck |
-      Some (sz, ins) \<Rightarrow>
-        x64_interp n l (exec_instr ins (of_nat sz) rs m)
-      ) |
-    _ \<Rightarrow> Stuck)
+    Stuck \<Rightarrow> Stuck |
+    Next rs m \<Rightarrow> (
+      case rs PC of
+      Vlong v \<Rightarrow> (
+        case x64_decode (unat v) l of
+        None \<Rightarrow> Stuck |
+        Some (sz, ins) \<Rightarrow>
+          x64_interp n l (exec_instr ins (of_nat sz) rs m) 
+        ) |
+      _ \<Rightarrow> Stuck)
 )"
 
-  \<comment> \<open> Validation \<close>
 
 definition int_to_u8_list :: "int list \<Rightarrow> u8 list" where
 "int_to_u8_list lp = (map (\<lambda>i. of_int i) lp)"
@@ -367,6 +368,70 @@ definition x64_interp_test ::
     Stuck \<Rightarrow> False |
     Next rs m \<Rightarrow> True )
 )"
+
+
+definition intlist_to_reg_map :: "int list \<Rightarrow> int list \<Rightarrow>  regset" where
+" intlist_to_reg_map lc lr = ( \<lambda> r.
+    case r of PC    \<Rightarrow> Vlong 0 |
+              TSC   \<Rightarrow> Vlong 0 |
+              CR ZF \<Rightarrow> Vlong (of_int (lc!0)) |
+              CR CF \<Rightarrow> Vlong (of_int (lc!1)) |
+              CR PF \<Rightarrow> Vlong (of_int (lc!2)) |
+              CR SF \<Rightarrow> Vlong (of_int (lc!3)) |
+              CR OF \<Rightarrow> Vlong (of_int (lc!4)) |
+              IR RAX \<Rightarrow> Vlong (of_int (lr!0)) |
+              IR RBX \<Rightarrow> Vlong (of_int (lr!1)) |
+              IR RCX \<Rightarrow> Vlong (of_int (lr!2)) |
+              IR RDX \<Rightarrow> Vlong (of_int (lr!3)) |
+              IR RSI \<Rightarrow> Vlong (of_int (lr!4)) |
+              IR RDI \<Rightarrow> Vlong (of_int (lr!5)) |
+              IR RBP \<Rightarrow> Vlong (of_int (lr!6)) |
+              IR RSP \<Rightarrow> Vlong (of_int (lr!7)) |
+              IR R8  \<Rightarrow> Vlong (of_int (lr!8)) |
+              IR R9  \<Rightarrow> Vlong (of_int (lr!9)) |
+              IR R10 \<Rightarrow> Vlong (of_int (lr!10)) |
+              IR R11 \<Rightarrow> Vlong (of_int (lr!11)) |
+              IR R12 \<Rightarrow> Vlong (of_int (lr!12)) |
+              IR R13 \<Rightarrow> Vlong (of_int (lr!13)) |
+              IR R14 \<Rightarrow> Vlong (of_int (lr!14)) |
+              IR R15 \<Rightarrow> Vlong (of_int (lr!15)) 
+)"
+
+definition u8_list_to_mem :: "u8 list \<Rightarrow> mem" where
+"u8_list_to_mem l = (\<lambda> i. if (unat i) < length(l) then Some (l!((unat i))) else None)"
+
+(*one step*)
+
+fun x64_step :: " x64_bin \<Rightarrow> outcome \<Rightarrow> outcome" where
+"x64_step l st = (
+  case st of
+    Stuck \<Rightarrow> Stuck |
+    Next rs m \<Rightarrow> (
+      case rs PC of
+        Vlong v \<Rightarrow> (
+          case x64_decode (unat v) l of
+            None \<Rightarrow> Stuck |
+            Some (sz, ins) \<Rightarrow>
+              (exec_instr ins (of_nat sz) rs m)
+            ) |
+        _ \<Rightarrow> Stuck)
+)"
+
+(*x64_step (int_to_u8_list lbin) *)
+
+definition x64_step_test ::
+ " int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> bool" where
+"x64_step_test lbin lc lr lm = (
+  let res  = x64_step (int_to_u8_list lbin) (Next (intlist_to_reg_map lc lr) (u8_list_to_mem (int_to_u8_list lm))) in 
+  (case res of  
+      Stuck \<Rightarrow> False 
+    | Next rs m \<Rightarrow> True)
+)"
+
+value "(x64_step_test [72,137,216] [0,0,0,0,0] [76,103,30,5,78,11,91,55,13,65,59,98,80,34,84,37] [])"
+
+value "x64_decode 0 [72,137,216]"
+
 
 (*value "x64_interp_test 42 [1, 2, 3]"*)
 
