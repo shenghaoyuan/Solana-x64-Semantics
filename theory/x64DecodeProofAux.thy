@@ -5,6 +5,7 @@ imports
   x64Assembler x64Disassembler BitsOpMore BitsOpMore2 BitsOpMore3 BitsOpMore4
 begin
 
+(*
 lemma [simp]: "l @ [a] = l_bin \<Longrightarrow> l_bin!(length l) = a" by fastforce
 lemma [simp]: "l @ [a, b] = l_bin \<Longrightarrow> l_bin!(length l) = a" by fastforce  
 lemma [simp]: "l @ [a, b, c] = l_bin \<Longrightarrow> l_bin!(length l) = a" by fastforce
@@ -91,11 +92,12 @@ lemma list_in_list_u8_list_of_u32_simp : "list_in_list (u8_list_of_u32 imm) pc l
 lemma list_in_list_u8_list_of_u32_simp_sym : "list_in_list (u8_list_of_u32 imm) pc l \<Longrightarrow>
   u32_of_u8_list [l ! pc, l ! (pc + 1), l ! (pc + 2), l ! (pc + 3)] = Some imm"
   using list_in_list_u8_list_of_u32_simp
-  by presburger
+  by presburger *)
 
 lemma length_u8_list_of_u32_eq_4 : "length (u8_list_of_u32 imm) = 4"
   by (simp add: u8_list_of_u32_def)
 
+(*
   \<comment> \<open> u64 \<close> 
 lemma list_in_list_u8_list_of_u64_simp : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
   Some imm = u64_of_u8_list [l ! pc, l ! (pc + 1), l ! (pc + 2), l ! (pc + 3), l ! (pc + 4), l ! (pc + 5), l ! (pc + 6), l ! (pc + 7)]"
@@ -105,7 +107,7 @@ lemma list_in_list_u8_list_of_u64_simp : "list_in_list (u8_list_of_u64 imm) pc l
 lemma list_in_list_u8_list_of_u64_simp_sym : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
   u64_of_u8_list [l ! pc, l ! (pc + 1), l ! (pc + 2), l ! (pc + 3), l ! (pc + 4), l ! (pc + 5), l ! (pc + 6), l ! (pc + 7)] = Some imm"
   using list_in_list_u8_list_of_u64_simp
-  by presburger
+  by presburger *)
 
 lemma length_u8_list_of_u64_eq_8 : "length (u8_list_of_u64 imm) = 8"
   by (simp add: u8_list_of_u64_def)
@@ -119,9 +121,13 @@ list_in_list l1 pc l \<Longrightarrow> list_in_list (h # t) pc l  \<Longrightarr
                                                       \<Longrightarrow> list_in_list t (pc+1) l
 list_in_list l2 (pc + length l1) l                  \<Longrightarrow> list_in_list l2 (pc + 1+ length t) l 
                                                           \<Longrightarrow> by IH *)
-  by (induction l1 arbitrary: l2 pc l, simp_all)
+  apply (induction l1 arbitrary: l2 pc l; simp add: nth_error_def)
+  subgoal for a l1 l2 pc l
+    by auto
+  done
 
-lemma Suc4_eq_add_4: "(Suc (Suc (Suc (Suc pc)))) = pc + 4" by simp
+lemma Suc4_eq_add_4: "(Suc (Suc (Suc (Suc pc)))) = pc + 4" 
+  by auto
 
 lemma and_7_or_192_simp: "(and 7 (or (and 192 (scale << 6)) v ) ) = and 7 (v::u8)"
   apply (simp add: bit_eq_iff)

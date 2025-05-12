@@ -4,6 +4,9 @@ imports
   "Word_Lib.Signed_Words"
 begin
 
+definition nth_error :: "'a list \<Rightarrow> nat \<Rightarrow> 'a option" where
+"nth_error l a = (if length l \<le> a then None else Some (l!a))"
+
 type_synonym u4 = "4 word"
 type_synonym u8 = "8 word"
 type_synonym i8 = "8 sword"
@@ -241,14 +244,14 @@ lemma bit_power_k_add_m_lt: "n < k+m \<Longrightarrow> \<not> bit (2^(k+m)-2^k::
 
 fun list_in_list :: "'a list \<Rightarrow> nat \<Rightarrow> 'a list \<Rightarrow> bool" where
 "list_in_list [] _ _ = True" |
-"list_in_list (h#t) n l = (h = l!n \<and> list_in_list t (Suc n) l)"
+"list_in_list (h#t) n l = (list_in_list t (Suc n) l \<and> (case nth_error l n of None \<Rightarrow> False | Some ln \<Rightarrow> h = ln))"
 
 lemma list_in_list_prop: "list_in_list l2 (length l1) (l1@l2@l3)"
   apply (induction l2 arbitrary: l1 l3)
   subgoal for l1 l3
     by simp
   subgoal for a l2 l1 l3
-    apply simp
+    apply (simp add: nth_error_def)
     by (metis append.left_neutral append_Cons append_assoc length_append_singleton)
   done
 
