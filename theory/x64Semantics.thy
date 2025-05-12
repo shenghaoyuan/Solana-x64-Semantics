@@ -422,7 +422,8 @@ fun x64_step :: " x64_bin \<Rightarrow> outcome \<Rightarrow> outcome" where
 definition x64_step_test ::
  " int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> bool" where
 "x64_step_test lbin lc lr lm = (
-  let res  = x64_step (int_to_u8_list lbin) (Next (intlist_to_reg_map lc lr) (u8_list_to_mem (int_to_u8_list lm))) in 
+  let res  = x64_step (int_to_u8_list lbin) (Next (intlist_to_reg_map lc lr) 
+    (u8_list_to_mem (int_to_u8_list lm))) in 
   (case res of  
       Stuck \<Rightarrow> False 
     | Next rs m \<Rightarrow> True)
