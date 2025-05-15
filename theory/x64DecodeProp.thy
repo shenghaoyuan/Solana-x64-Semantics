@@ -34,6 +34,289 @@ lemma list_in_list_nth_error:
     done
   done
 
+lemma list_in_list_x64_decode_op_0x66_prop: "
+  list_in_list l_bin pc l \<Longrightarrow>
+  x64_decode_op_0x66 0 l_bin = Some v \<Longrightarrow>
+    x64_decode_op_0x66 pc l = Some v"
+  apply (simp add: x64_decode_op_0x66_def)
+  apply (cases "nth_error l_bin (Suc 0)"; simp)
+  apply (frule list_in_list_nth_error [of _ _ _ "Suc 0" _], assumption, simp)
+  subgoal for h1 apply (cases "and 15 (h1 >> 4) \<noteq> 4"; simp)
+    subgoal
+      apply (cases "nth_error l_bin (Suc (Suc 0))"; simp) 
+      apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc 0)" _], assumption, simp add: Let_def)
+      subgoal for reg apply (cases "h1 = 193"; simp)
+        subgoal apply (cases "nth_error l_bin 3"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+          done
+
+        apply (cases "h1 = 129"; simp)
+        subgoal apply (cases "and 3 (reg >> 6) = 3"; simp)
+          apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) 0)"; simp)
+          subgoal for dst apply (cases "nth_error l_bin 3"; simp)
+            apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+            subgoal for i1 apply (cases "nth_error l_bin 4"; simp)
+              apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+              done
+            done
+          done
+
+        apply (cases "h1 = 137"; simp)
+        apply (cases "and 3 (reg >> 6) = 1"; simp)
+        apply (cases "nth_error l_bin 3"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+        done
+      done
+
+    apply (cases "nth_error l_bin (Suc (Suc 0))"; simp) 
+    apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc 0)" _], assumption, simp)
+      subgoal for op apply (cases "nth_error l_bin 3"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp add: Let_def)
+        subgoal for reg apply (cases "op = 193"; simp)
+          subgoal apply (cases "nth_error l_bin 4"; simp)
+            apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+          done
+        apply (cases "op = 129"; simp)
+        subgoal apply (cases "and 3 (reg >> 6) = 3"; simp)
+          apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) (and 1 h1))"; simp)
+          subgoal for dst apply (cases "nth_error l_bin 4"; simp)
+            apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+            subgoal for i1 apply (cases "nth_error l_bin 5"; simp)
+              apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+              done
+            done
+          done
+        apply (cases "op = 137"; simp)
+        apply (cases "and 3 (reg >> 6) = 1"; simp)
+        apply (cases "nth_error l_bin 4"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+        done
+      done
+    done
+  done
+
+lemma list_in_list_x64_decode_op_0x0f_prop: "list_in_list l_bin pc l \<Longrightarrow>
+  x64_decode_op_0x0f 0 l_bin = Some v \<Longrightarrow> x64_decode_op_0x0f pc l = Some v"
+  apply (simp add: x64_decode_op_0x0f_def)
+  apply (cases "nth_error l_bin (Suc 0)"; simp)
+  apply (frule list_in_list_nth_error [of _ _ _ "Suc 0" _], assumption, simp)
+  subgoal for op apply (cases "op = 49"; simp)
+    apply (cases "and 31 (op >> 3) = 25"; simp)
+    apply (cases "and 15 (op >> 4) = 4"; simp)
+    subgoal
+      apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc 0)" _], assumption, simp add: Let_def)
+      done
+
+    apply (cases "and 15 (op >> 4) = 8"; simp)
+    apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+    apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc 0)" _], assumption, simp add: Let_def)
+    subgoal for i1 apply (cases "nth_error l_bin 3"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+    subgoal for i2 apply (cases "nth_error l_bin 4"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+    subgoal for i3 apply (cases "nth_error l_bin 5"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+      done done done done done
+
+lemma list_in_list_x64_decode_op_not_rex_prop: "list_in_list l_bin pc l \<Longrightarrow>
+    x64_decode_op_not_rex h 0 l_bin = Some v \<Longrightarrow> x64_decode_op_not_rex h pc l = Some v"
+  apply (simp add: x64_decode_op_not_rex_def)
+  apply (cases "and 31 (h >> 3) = 10"; simp)
+  subgoal apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 h) 0)"; simp)
+    subgoal for dst apply (cases "nth_error l (Suc pc)", fastforce, simp)
+      subgoal for i1 apply (cases "nth_error l (Suc (Suc pc))", fastforce, simp)
+        subgoal for i2 apply (cases "nth_error l (pc + 3)", fastforce, simp)
+          subgoal for i3 apply (cases "nth_error l (pc + 4)", fastforce, simp)  
+            subgoal for i4 apply (cases "u32_of_u8_list [i1, i2, i3, i4]"; fastforce)
+              done
+            done
+          done
+        done
+      done
+    done
+
+  apply (cases "and 31 (h >> 3) = 11"; simp)
+  subgoal apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 h) 0)"; simp)
+    subgoal for dst apply (cases "nth_error l (Suc pc)", fastforce, simp)
+      subgoal for i1 apply (cases "nth_error l (Suc (Suc pc))", fastforce, simp)
+        subgoal for i2 apply (cases "nth_error l (pc + 3)", fastforce, simp)
+          subgoal for i3 apply (cases "nth_error l (pc + 4)", fastforce, simp)  
+            subgoal for i4 apply (cases "u32_of_u8_list [i1, i2, i3, i4]"; fastforce)
+              done
+            done
+          done
+        done
+      done
+    done
+
+  apply (cases "h = 232"; simp)
+  subgoal apply (cases "nth_error l_bin (Suc 0) "; simp)
+    apply (frule list_in_list_nth_error [of _ _ _ "Suc 0" _], assumption, simp)
+    subgoal for i1 apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+    subgoal for i2 apply (cases "nth_error l_bin 3"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+    subgoal for i3 apply (cases "nth_error l_bin 4"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+      done done done done
+
+  apply (cases "h = 233"; simp)
+  subgoal apply (cases "nth_error l_bin (Suc 0) "; simp)
+    apply (frule list_in_list_nth_error [of _ _ _ "Suc 0" _], assumption, simp)
+    subgoal for i1 apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+    subgoal for i2 apply (cases "nth_error l_bin 3"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+    subgoal for i3 apply (cases "nth_error l_bin 4"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+      done done done done
+
+    apply (cases "nth_error l_bin (Suc 0) "; simp)
+    apply (frule list_in_list_nth_error [of _ _ _ "Suc 0" _], assumption, simp)
+    subgoal for reg apply (cases "h = 137"; simp)
+      subgoal apply (simp add: Let_def)
+        apply (cases "and 3 (reg >> 6) = 3"; simp)
+        apply (cases "and 3 (reg >> 6) = 1"; simp)
+        subgoal
+          apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+          done
+
+        apply (cases "and 3 (reg >> 6) = 2"; simp)
+        apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+        subgoal for i2 apply (cases "nth_error l_bin 3"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+        subgoal for i3 apply (cases "nth_error l_bin 4"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+        subgoal for i4 apply (cases "nth_error l_bin 5"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+          done done done done
+
+        apply (cases "h = 1"; simp)
+        apply (cases "h = 247"; simp)
+        subgoal apply (simp add: Let_def)
+          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 3"; simp)
+          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 4"; simp)
+          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 5"; simp)
+          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 6"; simp)
+          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 7"; simp)
+          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 0"; simp)
+          apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+          subgoal for i2 apply (cases "nth_error l_bin 3"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+          subgoal for i3 apply (cases "nth_error l_bin 4"; simp)
+            apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+          subgoal for i4 apply (cases "nth_error l_bin 5"; simp)
+            apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+            done done done done
+
+        apply (cases "h = 41"; simp)
+        apply (cases "h = 33"; simp)
+        apply (cases "h = 9"; simp)
+        apply (cases "h = 49"; simp)
+        apply (cases "h = 211"; simp)
+        apply (cases "h = 133"; simp)
+        apply (cases "h = 57"; simp)
+        apply (cases "h = 255"; simp)
+        apply (cases "h = 199"; simp)
+        apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+        subgoal for i2 apply (cases "nth_error l_bin 3"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+        subgoal for i3 apply (cases "nth_error l_bin 4"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+        subgoal for i4 apply (cases "nth_error l_bin 5"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+          done done done
+
+        apply (cases "h = 193"; simp)
+        subgoal
+          apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+          done
+        apply (cases "h = 129"; simp)
+        apply (cases "and 3 (reg >> 6) = 3"; simp)
+        apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) 0)"; simp)
+        subgoal for dst apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+        subgoal for i2 apply (cases "nth_error l_bin 3"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+        subgoal for i3 apply (cases "nth_error l_bin 4"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+        subgoal for i4 apply (cases "nth_error l_bin 5"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+          done done done done
+
+        apply (cases "h = 136"; simp)
+        subgoal
+          apply (cases "and 3 (reg >> 6) = 1"; simp)
+          apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+          done
+        apply (cases "h = 139"; simp add: Let_def)
+        apply (cases "and 3 (reg >> 6) = 1"; simp)
+        subgoal
+          apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+          done
+
+        apply (cases "and 3 (reg >> 6) = 2"; simp)
+        apply (cases "nth_error l_bin (Suc (Suc 0))"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc 0))" _], assumption, simp)
+        subgoal for i2 apply (cases "nth_error l_bin 3"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+        subgoal for i3 apply (cases "nth_error l_bin 4"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+        subgoal for i4 apply (cases "nth_error l_bin 5"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+          done done done done
+        done
+
+lemma list_in_list_x64_decode_op_0x81_prop: "list_in_list l_bin pc l \<Longrightarrow>
+    x64_decode_op_0x81 modrm dst reg1 reg2 w r x b 0 l_bin = Some v \<Longrightarrow>
+    x64_decode_op_0x81 modrm dst reg1 reg2 w r x b pc l = Some v"
+  apply (simp add: x64_decode_op_0x81_def)
+  apply (cases "modrm = 3"; simp)
+  subgoal apply (cases "ireg_of_u8 dst"; simp)
+    subgoal for dst apply (cases "nth_error l_bin 3"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+      subgoal for i1 apply (cases "nth_error l_bin 4"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+        subgoal for i2 apply (cases "nth_error l_bin 5"; simp)
+          apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+          subgoal for i3 apply (cases "nth_error l_bin 6"; simp)
+            apply (frule list_in_list_nth_error [of _ _ _ 6 _], assumption, simp)
+            done
+          done
+        done
+      done
+    done
+  apply (cases "modrm = 2 \<and> reg2 = 4"; simp)
+  apply (cases "nth_error l_bin 3"; simp)
+  apply (frule list_in_list_nth_error [of _ _ _ 3 _], assumption, simp)
+  subgoal for sib apply (cases "nth_error l_bin 4"; simp)
+    apply (frule list_in_list_nth_error [of _ _ _ 4 _], assumption, simp)
+    subgoal for d1 apply (cases "nth_error l_bin 5"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 5 _], assumption, simp)
+    subgoal for d2 apply (cases "nth_error l_bin 6"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 6 _], assumption, simp)
+    subgoal for d3 apply (cases "nth_error l_bin 7"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 7 _], assumption, simp)
+    subgoal for d4 apply (cases "u32_of_u8_list [d1, d2, d3, d4]"; simp)
+    subgoal for dis apply (cases "reg1 = 0"; simp)
+      apply (cases "nth_error l_bin 8"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 8 _], assumption, simp)
+      subgoal for i1 apply (cases "nth_error l_bin 9"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 9 _], assumption, simp)
+      subgoal for i2 apply (cases "nth_error l_bin 10"; simp)
+      apply (frule list_in_list_nth_error [of _ _ _ 10 _], assumption, simp)
+      subgoal for i3 apply (cases "nth_error l_bin 11"; simp)
+        apply (frule list_in_list_nth_error [of _ _ _ 11 _], assumption, simp)
+        done done done done done done done done done done
+
 lemma list_in_list_x64_decode:
   "list_in_list l_bin pc l \<Longrightarrow> x64_decode 0 l_bin = Some v \<Longrightarrow> x64_decode pc l = Some v"
   apply (simp add: x64_decode_def)
@@ -44,14 +327,14 @@ lemma list_in_list_x64_decode:
     apply (cases "h = 153"; simp)
     apply (cases "h = 195"; simp)
     apply (cases "h = 102"; simp)
-     prefer 2
-     apply (cases "h = 15"; simp)
-      prefer 2
-      apply (cases "and 15 (h >> 4) \<noteq> 4"; simp)
-    prefer 2
-      apply (cases "and 15 h = 0"; simp)
-       apply (cases "nth_error l_bin (Suc 0)"; simp)
-      apply (frule list_in_list_nth_error [of _ _ _ "Suc 0" _], assumption, simp)
+    subgoal using list_in_list_x64_decode_op_0x66_prop by blast
+    apply (cases "h = 15"; simp)
+    subgoal using list_in_list_x64_decode_op_0x0f_prop by blast
+    apply (cases "and 15 (h >> 4) \<noteq> 4"; simp)
+    subgoal using list_in_list_x64_decode_op_not_rex_prop by blast
+    apply (cases "and 15 h = 0"; simp)
+    apply (cases "nth_error l_bin (Suc 0)"; simp)
+    apply (frule list_in_list_nth_error [of _ _ _ "Suc 0" _], assumption, simp)
     subgoal for op
       apply (cases "op = 153"; simp)
       apply (cases "and 31 (op >> 3) = 10"; simp)
@@ -283,7 +566,7 @@ lemma list_in_list_x64_decode:
                   apply (cases "op = 129"; simp)
                   subgoal 
                     apply (simp add: Let_def)
-                    sorry
+                    using list_in_list_x64_decode_op_0x81_prop by blast
 
                   apply (cases "op = 193"; simp)
                   subgoal
@@ -360,5 +643,6 @@ lemma list_in_list_x64_decode:
                     done done done done
 
                   done
+                done
 
 end
