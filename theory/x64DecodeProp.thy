@@ -5,6 +5,13 @@ imports
   x64Disassembler
 begin
 
+lemma list_in_list_implies_set_relation:
+  "list_in_list [x] pos l_jump \<Longrightarrow> x \<in> set l_jump"
+  apply simp
+  apply (cases "nth_error l_jump pos"; simp)
+  by (metis in_set_conv_nth le_eq_less_or_eq linorder_le_cases
+      nth_error_def option.inject option.simps(3))
+
 lemma list_in_list_nth_error_0:
   "list_in_list l0 pc l \<Longrightarrow> nth_error l0 0 = Some v \<Longrightarrow> nth_error l pc = Some v"
   apply (induction l0 arbitrary: l pc)
