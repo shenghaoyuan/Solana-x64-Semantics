@@ -5,6 +5,11 @@ imports
   x64Disassembler
 begin
 
+lemma x64_decode_length_none: "
+  x64_decode (length l) l = None"
+  apply (simp add: x64_decode_def nth_error_def)
+  done
+
 lemma list_in_list_implies_set_relation:
   "list_in_list [x] pos l_jump \<Longrightarrow> x \<in> set l_jump"
   apply simp
