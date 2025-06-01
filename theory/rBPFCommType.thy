@@ -79,6 +79,8 @@ definition arsh32 :: "i32 \<Rightarrow> nat \<Rightarrow> i32" where
 definition arsh64 :: "i64 \<Rightarrow> nat \<Rightarrow> i64" where
 "arsh64 x n = (if bit x 63 then or (drop_bit n x) (((2^n) -1) << 64-n) else drop_bit n x)"
 
+(** explain here we use `fun` rather that definition because
+- the theory `x64DecodeProof` uses unsigned_bitfield_extract_u8 for simplification *)
 fun unsigned_bitfield_extract_u8 :: "nat \<Rightarrow> nat \<Rightarrow> u8 \<Rightarrow> u8" where
 "unsigned_bitfield_extract_u8 pos width n = and ((2 ^ width) - 1) (n >> pos)"
 

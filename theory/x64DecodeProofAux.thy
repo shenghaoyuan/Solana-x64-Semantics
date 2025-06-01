@@ -3,111 +3,138 @@ imports
   Main
   rBPFCommType
   x64Assembler x64Disassembler BitsOpMore BitsOpMore2 BitsOpMore3 BitsOpMore4
+  x64BitSimp
 begin
 
-(*
-lemma [simp]: "l @ [a] = l_bin \<Longrightarrow> l_bin!(length l) = a" by fastforce
-lemma [simp]: "l @ [a, b] = l_bin \<Longrightarrow> l_bin!(length l) = a" by fastforce  
-lemma [simp]: "l @ [a, b, c] = l_bin \<Longrightarrow> l_bin!(length l) = a" by fastforce
-lemma [simp]: "l @ [a, b, c, d] = l_bin \<Longrightarrow> l_bin!(length l) = a" by fastforce
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(length l) = a" by fastforce
+named_theorems nat_simp
+declare Suc3_eq_add_3 [nat_simp]
 
-lemma [simp]: "l @ [a, b] = l_bin \<Longrightarrow> l_bin!(length l + 1) = b"
-  by (metis One_nat_def nth_Cons_0 nth_Cons_Suc nth_append_length_plus)
-lemma [simp]: "l @ [a, b, c] = l_bin \<Longrightarrow> l_bin!(length l + 1) = b"
-  by (metis One_nat_def nth_Cons_0 nth_Cons_Suc nth_append_length_plus)
-lemma [simp]: "l @ [a, b, c, d] = l_bin \<Longrightarrow> l_bin!(length l + 1) = b"
-  by (metis One_nat_def nth_Cons_0 nth_Cons_Suc nth_append_length_plus)
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(length l + 1) = b"
-  by (metis One_nat_def nth_Cons_0 nth_Cons_Suc nth_append_length_plus)
+lemma Suc4_eq_add_4[nat_simp]: \<open>Suc (Suc (Suc (Suc n))) = 4 + n\<close>
+  by simp
 
-lemma [simp]: "l @ [a, b] = l_bin \<Longrightarrow> l_bin!(Suc (length l)) = b"
-  by (metis One_nat_def add_diff_cancel_right' not_add_less2 nth_Cons_0 nth_Cons_Suc nth_append plus_1_eq_Suc)
-lemma [simp]: "l @ [a, b, c] = l_bin \<Longrightarrow> l_bin!(Suc (length l)) = b"
-  by (metis One_nat_def add_diff_cancel_right' not_add_less2 nth_Cons_0 nth_Cons_Suc nth_append plus_1_eq_Suc)
-lemma [simp]: "l @ [a, b, c, d] = l_bin \<Longrightarrow> l_bin!(Suc (length l)) = b"
-  by (metis One_nat_def add_diff_cancel_right' not_add_less2 nth_Cons_0 nth_Cons_Suc nth_append plus_1_eq_Suc)
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(Suc (length l)) = b"
-  by (metis One_nat_def add_diff_cancel_right' not_add_less2 nth_Cons_0 nth_Cons_Suc nth_append plus_1_eq_Suc)
+lemma Suc5_eq_add_5[nat_simp]: \<open>Suc (Suc (Suc (Suc (Suc n)))) = 5 + n\<close>
+  by simp
 
-lemma [simp]: "l @ [a, b, c] = l_bin \<Longrightarrow> l_bin!(length l + 2) = c"
-  by (metis One_nat_def Suc_1 nth_Cons_0 nth_Cons_Suc nth_append_length_plus)
-lemma [simp]: "l @ [a, b, c, d] = l_bin \<Longrightarrow> l_bin!(length l + 2) = c"
-  by (metis One_nat_def Suc_1 nth_Cons_0 nth_Cons_Suc nth_append_length_plus)
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(length l + 2) = c"
-  by (metis One_nat_def Suc_1 nth_Cons_0 nth_Cons_Suc nth_append_length_plus)
+lemma Suc6_eq_add_6[nat_simp]: \<open>Suc (Suc (Suc (Suc (Suc (Suc n))))) = 6 + n\<close>
+  by simp
 
+lemma Suc7_eq_add_7[nat_simp]: \<open>Suc (Suc (Suc (Suc (Suc (Suc (Suc n)))))) = 7 + n\<close>
+  by simp
 
-lemma [simp]: "l @ [a, b, c] = l_bin \<Longrightarrow> l_bin!(Suc (Suc (length l))) = c"
-  by (metis Cons_eq_appendI One_nat_def add_Suc_right append_Nil length_append list.size(3) list.size(4) nth_append_length nth_append_length_plus plus_1_eq_Suc)
-lemma [simp]: "l @ [a, b, c, d] = l_bin \<Longrightarrow> l_bin!(Suc (Suc (length l))) = c"
-  by (metis Cons_eq_appendI One_nat_def add_Suc_right append_Nil length_append list.size(3) list.size(4) nth_append_length nth_append_length_plus plus_1_eq_Suc)
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(Suc (Suc (length l))) = c"
-  by (metis Cons_eq_appendI One_nat_def add_Suc_right append_Nil length_append list.size(3) list.size(4) nth_append_length nth_append_length_plus plus_1_eq_Suc)
+lemma Suc8_eq_add_8[nat_simp]: \<open>Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc n))))))) = 8 + n\<close>
+  by simp
 
-lemma [simp]: "l @ [a, b, c, d] = l_bin \<Longrightarrow> l_bin!(length l + 3) = d"
-  by force
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(length l + 3) = d"
-  by force
+lemma Suc9_eq_add_9[nat_simp]: \<open>Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc n)))))))) = 9 + n\<close>
+  by simp
 
-
-lemma [simp]: "l @ [a, b, c, d] = l_bin \<Longrightarrow> l_bin!(Suc (Suc (Suc (length l)))) = d"
-  by (metis One_nat_def Suc3_eq_add_3 add_diff_cancel_right' last.simps last_conv_nth length_Cons list.discI list.size(3) not_add_less2 nth_append)
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(Suc (Suc (Suc (length l)))) = d"
-  by (metis Suc3_eq_add_3 add.commute nth_Cons_0 nth_Cons_Suc nth_append_length_plus numeral_3_eq_3)
-
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(length l + 4) = e"
-  by force
-
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> l_bin!(Suc (Suc (Suc (Suc (length l))))) = e"
-  by (metis Nil_is_append_conv One_nat_def Suc_1 add_2_eq_Suc' add_Suc_right diff_Suc_1' last.simps last_appendR last_conv_nth length_Cons length_append list.discI list.size(3))
-
-lemma [simp]: "l @ [a] = l_bin \<Longrightarrow> length l_bin - length l = 1" by fastforce
-lemma [simp]: "l @ [a, b] = l_bin \<Longrightarrow> length l_bin - length l = 2" by fastforce  
-lemma [simp]: "l @ [a, b, c] = l_bin \<Longrightarrow> length l_bin - length l = 3" by fastforce
-lemma [simp]: "l @ [a, b, c, d] = l_bin \<Longrightarrow> length l_bin - length l = 4" by fastforce
-lemma [simp]: "l @ [a, b, c, d, e] = l_bin \<Longrightarrow> length l_bin - length l = 5" by fastforce
+lemma Suc10_eq_add_10[nat_simp]: \<open>Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc (Suc n))))))))) = 10 + n\<close>
+  by simp
 
 
   \<comment> \<open> u16 \<close> 
-lemma list_in_list_u8_list_of_u16_simp : "list_in_list (u8_list_of_u16 imm) pc l \<Longrightarrow>
-  Some imm = u16_of_u8_list [l ! pc, l ! (pc + 1)]"
-  by (simp add: u16_of_u8_list_same u8_list_of_u16_def
-      Suc3_eq_add_3 add.commute)
-
-lemma list_in_list_u8_list_of_u16_simp_sym : "list_in_list (u8_list_of_u16 imm) pc l \<Longrightarrow>
-  u16_of_u8_list [l ! pc, l ! (pc + 1)] = Some imm"
-  using list_in_list_u8_list_of_u16_simp
-  by presburger
 
 lemma length_u8_list_of_u16_eq_2 : "length (u8_list_of_u16 imm) = 2"
   by (simp add: u8_list_of_u16_def)
 
-  \<comment> \<open> u32 \<close> 
-lemma list_in_list_u8_list_of_u32_simp : "list_in_list (u8_list_of_u32 imm) pc l \<Longrightarrow>
-  Some imm = u32_of_u8_list [l ! pc, l ! (pc + 1), l ! (pc + 2), l ! (pc + 3)]"
-  by (simp add: u32_of_u8_list_same u8_list_of_u32_def
+lemma list_in_list_u8_list_of_u16_simp_0 : "list_in_list (u8_list_of_u16 imm) pc l \<Longrightarrow>
+  nth_error l pc = Some (l!pc)"
+  apply (simp add: u8_list_of_u16_def nth_error_def)
+    by force
+
+lemma list_in_list_u8_list_of_u16_simp_1 : "list_in_list (u8_list_of_u16 imm) pc l \<Longrightarrow>
+  nth_error l (pc + 1) = Some (l!(pc+1))"
+  apply (simp add: u8_list_of_u16_def nth_error_def)
+    by force
+
+lemma list_in_list_u8_list_of_u16_simp : "list_in_list (u8_list_of_u16 imm) pc l \<Longrightarrow>
+  u16_of_u8_list [l!pc, l!(pc+1)] = Some imm"
+  apply (rule sym [of "Some imm"])
+  apply (simp add: u16_of_u8_list_same u8_list_of_u16_def nth_error_def
       Suc3_eq_add_3 add.commute)
+  apply (cases "length l \<le> Suc pc"; simp)
+  done
 
-lemma list_in_list_u8_list_of_u32_simp_sym : "list_in_list (u8_list_of_u32 imm) pc l \<Longrightarrow>
-  u32_of_u8_list [l ! pc, l ! (pc + 1), l ! (pc + 2), l ! (pc + 3)] = Some imm"
-  using list_in_list_u8_list_of_u32_simp
-  by presburger *)
-
+  \<comment> \<open> u32 \<close>
 lemma length_u8_list_of_u32_eq_4 : "length (u8_list_of_u32 imm) = 4"
   by (simp add: u8_list_of_u32_def)
 
-(*
-  \<comment> \<open> u64 \<close> 
-lemma list_in_list_u8_list_of_u64_simp : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
-  Some imm = u64_of_u8_list [l ! pc, l ! (pc + 1), l ! (pc + 2), l ! (pc + 3), l ! (pc + 4), l ! (pc + 5), l ! (pc + 6), l ! (pc + 7)]"
-  by (simp add: u64_of_u8_list_same u8_list_of_u64_def
-        Suc3_eq_add_3 add.commute)
+lemma list_in_list_u8_list_of_u32_simp_0 : "list_in_list (u8_list_of_u32 imm) pc l \<Longrightarrow>
+  nth_error l pc = Some (l!pc)"
+  apply (simp add: u8_list_of_u32_def nth_error_def)
+    by force
 
-lemma list_in_list_u8_list_of_u64_simp_sym : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
-  u64_of_u8_list [l ! pc, l ! (pc + 1), l ! (pc + 2), l ! (pc + 3), l ! (pc + 4), l ! (pc + 5), l ! (pc + 6), l ! (pc + 7)] = Some imm"
-  using list_in_list_u8_list_of_u64_simp
-  by presburger *)
+lemma list_in_list_u8_list_of_u32_simp_1 : "list_in_list (u8_list_of_u32 imm) pc l \<Longrightarrow>
+  nth_error l (pc+1) = Some (l!(pc+1))"
+  apply (simp add: u8_list_of_u32_def nth_error_def)
+    by force
+
+lemma list_in_list_u8_list_of_u32_simp_2 : "list_in_list (u8_list_of_u32 imm) pc l \<Longrightarrow>
+  nth_error l (pc+2) = Some (l!(pc+2))"
+  apply (simp add: u8_list_of_u32_def nth_error_def)
+    by force
+
+lemma list_in_list_u8_list_of_u32_simp_3 : "list_in_list (u8_list_of_u32 imm) pc l \<Longrightarrow>
+  nth_error l (pc+3) = Some (l!(pc+3))"
+  apply (simp add: u8_list_of_u32_def nth_error_def)
+    by force
+
+lemma list_in_list_u8_list_of_u32_simp : "list_in_list (u8_list_of_u32 imm) pc l \<Longrightarrow>
+  u32_of_u8_list [l!pc, l!(pc+1), l!(pc+2), l!(pc+3)] = Some imm"
+  apply (rule sym [of "Some imm"])
+  apply (simp add: u32_of_u8_list_same u8_list_of_u32_def nth_error_def
+      Suc3_eq_add_3 add.commute)
+  apply (cases "length l \<le> pc + 3"; simp)
+  done
+
+
+  \<comment> \<open> u64 \<close> 
+lemma list_in_list_u8_list_of_u64_simp_0 : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  nth_error l pc = Some (l!pc)"
+  apply (simp add: u8_list_of_u64_def nth_error_def)
+  by force
+
+lemma list_in_list_u8_list_of_u64_simp_1 : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  nth_error l (pc+1) = Some (l!(pc+1))"
+  apply (simp add: u8_list_of_u64_def nth_error_def)
+  by force
+
+lemma list_in_list_u8_list_of_u64_simp_2 : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  nth_error l (pc+2) = Some (l!(pc+2))"
+  apply (simp add: u8_list_of_u64_def nth_error_def)
+  by force
+
+lemma list_in_list_u8_list_of_u64_simp_3 : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  nth_error l (pc+3) = Some (l!(pc+3))"
+  apply (simp add: u8_list_of_u64_def nth_error_def)
+  by force
+
+lemma list_in_list_u8_list_of_u64_simp_4 : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  nth_error l (pc+4) = Some (l!(pc+4))"
+  apply (simp add: u8_list_of_u64_def nth_error_def)
+  by force
+
+lemma list_in_list_u8_list_of_u64_simp_5 : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  nth_error l (pc+5) = Some (l!(pc+5))"
+  apply (simp add: u8_list_of_u64_def nth_error_def)
+  by force
+
+lemma list_in_list_u8_list_of_u64_simp_6 : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  nth_error l (pc+6) = Some (l!(pc+6))"
+  apply (simp add: u8_list_of_u64_def nth_error_def)
+  by force
+
+lemma list_in_list_u8_list_of_u64_simp_7 : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  nth_error l (pc+7) = Some (l!(pc+7))"
+  apply (simp add: u8_list_of_u64_def nth_error_def)
+  by force
+
+lemma list_in_list_u8_list_of_u64_simp : "list_in_list (u8_list_of_u64 imm) pc l \<Longrightarrow>
+  u64_of_u8_list [l!pc, l!(pc+1), l!(pc+2), l!(pc+3), l!(pc+4), l!(pc+5), l!(pc+6), l!(pc+7)] = Some imm"
+  apply (rule sym [of "Some imm"])
+  apply (simp add: u64_of_u8_list_same u8_list_of_u64_def nth_error_def
+      Suc3_eq_add_3 add.commute)
+  apply (cases "length l \<le> pc + 7"; simp)
+  done
 
 lemma length_u8_list_of_u64_eq_8 : "length (u8_list_of_u64 imm) = 8"
   by (simp add: u8_list_of_u64_def)
@@ -126,22 +153,8 @@ list_in_list l2 (pc + length l1) l                  \<Longrightarrow> list_in_li
     by auto
   done
 
-lemma Suc4_eq_add_4: "(Suc (Suc (Suc (Suc pc)))) = pc + 4" 
-  by auto
-
-lemma and_7_or_192_simp: "(and 7 (or (and 192 (scale << 6)) v ) ) = and 7 (v::u8)"
-  apply (simp add: bit_eq_iff)
-  apply (auto simp add: bit_simps)
-  subgoal for n apply (cases n, simp_all)
-    subgoal for n1 apply (cases n1, simp_all)
-      subgoal for n2 apply (cases n2, simp_all)
-        done
-      done
-    done
-  done
-
 lemma construct_modsib_to_u8_imply_base_reg_simp: "
-  rex = construct_rex_to_u8 True b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
+  rex = construct_rex_to_u8 b0 b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
     (and (u8_of_ireg base_reg) 8 \<noteq> 0) \<Longrightarrow>
   v = construct_modsib_to_u8 scale (u8_of_ireg index_reg) (u8_of_ireg base_reg) \<Longrightarrow>
     ireg_of_u8 (bitfield_insert_u8 3 1 (unsigned_bitfield_extract_u8 0 3 v)
@@ -149,28 +162,23 @@ lemma construct_modsib_to_u8_imply_base_reg_simp: "
   apply (simp add: construct_rex_to_u8_def construct_modsib_to_u8_def
       bitfield_insert_u8_def Let_def)
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
-  apply (simp only: and_7_or_192_simp)
-  apply (cases b; cases index_reg; cases base_reg; simp)
+  apply (simp add: bit_simp bit_simps)
+  apply (simp add: bit.conj_disj_distrib) (**TODO: here could we find a way to solve it automatically, NP hard? *)
+  apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric])
+  apply (simp add: bit.conj_disj_distrib)
+  apply (simp add: and.assoc[symmetric])
+  apply (simp add: and.commute)
+  apply (simp add: and.assoc[symmetric])
+  apply (cases base_reg; simp)
   done
 
 lemma construct_modsib_to_u8_imply_base_reg: "
-  construct_rex_to_u8 True b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
+  construct_rex_to_u8 b0 b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
     (and (u8_of_ireg base_reg) 8 \<noteq> 0) = rex \<Longrightarrow>
   construct_modsib_to_u8 scale (u8_of_ireg index_reg) (u8_of_ireg base_reg) = v \<Longrightarrow>
     ireg_of_u8 (bitfield_insert_u8 3 1 (unsigned_bitfield_extract_u8 0 3 v)
       (unsigned_bitfield_extract_u8 0 1 rex)) = Some base_reg"
   using construct_modsib_to_u8_imply_base_reg_simp by blast
-
-lemma and_7_or_24_simp: "and 7 (or (and 24 ((scale << 6) >> 3)) v) = and 7 (v::u8)"
-  apply (simp add: bit_eq_iff)
-  apply (auto simp add: bit_simps)
-  subgoal for n apply (cases n, simp_all)
-    subgoal for n1 apply (cases n1, simp_all)
-      subgoal for n2 apply (cases n2, simp_all)
-        done
-      done
-    done
-  done
 
 lemma construct_modsib_to_u8_imply_index_reg_simp: "
   rex = construct_rex_to_u8 True b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
@@ -181,8 +189,12 @@ lemma construct_modsib_to_u8_imply_index_reg_simp: "
   apply (simp add: construct_rex_to_u8_def construct_modsib_to_u8_def
       bitfield_insert_u8_def Let_def)
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
-  apply (simp only: and_7_or_24_simp)
-  apply (cases b; cases index_reg; cases base_reg; simp)
+  apply (simp only: bit_simp)
+  apply (simp add: bit.conj_disj_distrib) (**TODO: here could we find a way to solve it automatically, NP hard? *)
+  apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric])
+  apply (simp add: bit.conj_disj_distrib)
+  apply (simp add: and.assoc[symmetric])
+  apply (cases index_reg; simp)
   done
 
 lemma construct_modsib_to_u8_imply_index_reg: "
@@ -257,11 +269,14 @@ lemma bit_n_plus_le: "(v::u32) \<le> 2^n - 1 \<Longrightarrow> bit v (n+m) = Fal
   by (meson bit_n_plus_ge exp_add_not_zero_imp_left exp_eq_0_imp_not_bit one_neq_zero
       order_trans sub_wrap word_less_1)
 
-lemma Suc7_eq_add_7:"(Suc (Suc (Suc (Suc (Suc (Suc (Suc n))))))) = 7+n" by simp
-
 lemma word_not_set_inverse:"(ofs::('a::len) word) \<le> 2^n-1 \<longleftrightarrow> - (2^n) \<le> (not ofs)"
-  by (smt (z3) add_diff_cancel_left' add_uminus_conv_diff linorder_not_le minus_diff_commute
-      not_eq_complement sub_wrap word_le_minus_mono_left word_less_1 word_sub_le_iff)
+  apply (induction n arbitrary: ofs)
+  subgoal for ofs
+    by (simp add: not_eq_complement word_order.extremum_unique) 
+  subgoal for n1 ofs
+    by (metis (no_types, opaque_lifting) add.inverse_inverse max_word_max minus_diff_commute minus_eq_not_minus_1 not_eq_complement
+        word_le_minus_mono)
+  done
  
 lemma bit_n_plus_le_7: "(v::u32) \<le> 127 \<Longrightarrow> bit v (7+m) = False"
   using bit_n_plus_le [of v 7 m] by simp
