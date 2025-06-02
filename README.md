@@ -1,5 +1,10 @@
 # Formalizing x64 binary semantics in Isabelle/HOL
 
+## TODO
+- [x] move `nth` to `nth_error` 
+- [ ] semantics validation: check the consistency between our semantic model and the real-world hardare
+- [ ] encode proof: complete the encode-decode proof
+
 # How to install
 - [Isabelle/HOL 2024](https://isabelle.in.tum.de/) (please set your PATH with e.g. `/YOUR-PATH/Isabelle2024`)
 
