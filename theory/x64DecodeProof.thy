@@ -13,20 +13,9 @@ lemma construct_rex_to_u8_min [rex_simp]:"64 \<le> construct_rex_to_u8 w r x b"
   using construct_rex_to_u8_def bitfield_insert_u8_def Let_def
   by (cases w; cases r; cases x; cases b; simp)
 
-(*
-lemma construct_rex_to_u8_min1 [rex_simp]:"construct_rex_to_u8 w r x b = v \<Longrightarrow> 64 \<le> v"
-  using construct_rex_to_u8_min
-  by blast *)
-
-
 lemma construct_rex_to_u8_max [rex_simp]:"construct_rex_to_u8 w r x b \<le> 79"
   using construct_rex_to_u8_def bitfield_insert_u8_def Let_def
   by (cases w; cases r; cases x; cases b; simp)
-
-(*
-lemma construct_rex_to_u8_max1 [rex_simp]:"construct_rex_to_u8 w r x b = v \<Longrightarrow> v \<le> 79"
-  using construct_rex_to_u8_max
-  by blast *)
 
 lemma construct_rex_to_u8_src [rex_simp]: "construct_rex_to_u8 b0 (and (u8_of_ireg src) (8::8 word) \<noteq> 0) b1 b2 = (64::8 word) \<Longrightarrow>
     ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) (u8_of_ireg src)) 0) =
@@ -262,6 +251,8 @@ lemma construct_rex_to_u8_eq_and_1_shr_3 [rex_simp]: "
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
+
+(** bit insert related *)
 lemma bitfield_insert_u8_184_neq_15 [rex_simp]: "
   bitfield_insert_u8 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
   v1 \<noteq> 15"
@@ -370,6 +361,13 @@ lemma bitfield_insert_u8_80_neq_15 [rex_simp]: "
   apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
   done
 
+lemma bitfield_insert_u8_80_neq_153 [rex_simp]: "
+  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+    v \<noteq> 153"
+  apply (drule sym [of _ v])
+  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  done
+
 lemma bitfield_insert_u8_80_neq_104 [rex_simp]: "
   bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     v \<noteq> 104"
@@ -382,6 +380,61 @@ lemma bitfield_insert_u8_80_and_31_neq_23 [rex_simp]: "
     and (31::8 word) (v >> (3::nat)) \<noteq> 23"
   apply (drule sym [of _ v])
   apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  done
+
+lemma bitfield_insert_u8_80_and_31_neq_11 [rex_simp]: "
+  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+    and (31::8 word) (v >> (3::nat)) \<noteq> 11"
+  apply (drule sym [of _ v])
+  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  done
+
+lemma bitfield_insert_u8_80_and_31_eq_10 [rex_simp]: "
+  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+    and (31::8 word) (v >> (3::nat)) = 10"
+  apply (drule sym [of _ v])
+  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  done
+
+lemma bitfield_insert_u8_128_and_15_neq_25 [rex_simp]: "
+  bitfield_insert_u8 (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
+   and (31::8 word) (v >> (3::nat)) \<noteq> (25::8 word)"
+  apply (drule sym [of _ v])
+  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  done
+
+lemma bitfield_insert_u8_128_neq_49 [rex_simp]: "
+  bitfield_insert_u8 (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
+   v \<noteq> 49"
+  apply (drule sym [of _ v])
+  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  done
+
+lemma bitfield_insert_u8_128_and_15_neq_8 [rex_simp]: "
+  bitfield_insert_u8 (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
+   and (15::8 word) (v >> (4::nat)) = 8"
+  apply (drule sym [of _ v])
+  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  done
+
+lemma bitfield_insert_u8_128_test [rex_simp]: "
+  bitfield_insert_u8 (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
+   cond_of_u8 (and (15::8 word) v) = Some test"
+  apply (drule sym [of _ v])
+  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  done
+
+lemma bitfield_insert_u8_80_dst [rex_simp]: "
+  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+  ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc (0::nat)) (and (7::8 word) v) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> (0::8 word)))) =
+     Some dst"
+  apply (drule sym [of _ v])
+  apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
+  apply (simp add: construct_rex_to_u8_def
+      construct_modsib_to_u8_def bitfield_insert_u8_def)
+  apply (simp add: bit.conj_disj_distrib)
+  apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
+  apply (cases dst; simp)
   done
 
 lemma bitfield_insert_u8_200_src [rex_simp]: "
@@ -1754,20 +1807,16 @@ lemma x64_encode_decode_consistency:
     apply ((erule case_optionE), simp)+
     subgoal for v1 v0
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
-      ...
       done
     done
 
 
   subgoal for imm
     \<comment> \<open> Ppushl_i \<close> 
+    apply (erule conjE)+
     apply ((erule case_optionE), simp)+
     subgoal for v0
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
-      done
-    done
-
-
       using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+2" _]
       using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+2" _]
       using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+2" _]
@@ -1777,13 +1826,8 @@ lemma x64_encode_decode_consistency:
       using length_u8_list_of_u32_eq_4
       apply (simp add: modsib_simp rex_simp nat_simp add.commute)
       done
-
-    subgoal 
-      using list_in_list_u8_list_of_u32_simp_sym [of imm  "(Suc (Suc pc))" l]
-      using length_u8_list_of_u32_eq_4
-      apply(auto simp add: x64_decode_def bitfield_insert_u8_def Let_def ireg_of_u8_def Suc3_eq_add_3 add.commute)
-      done
     done
+
 
   subgoal for addr chunk 
     \<comment> \<open> Ppushq_m \<close> 
@@ -1792,20 +1836,19 @@ lemma x64_encode_decode_consistency:
     subgoal for base index2 ofs
       apply (cases base;simp)
       subgoal for base_reg
-        apply (cases index2; simp add: Let_def)
+        apply (cases index2; simp)
         subgoal for index22
-          apply (cases index22, simp_all)
-          subgoal for index_reg scale
-            apply (erule conjE;erule conjE;erule conjE;erule conjE)
-            using list_in_list_u8_list_of_u32_simp_sym [of ofs "(Suc (Suc (Suc (Suc pc))))" l]
+          apply (cases index22; simp; (erule conjE)+; ((erule case_optionE), simp)+;
+              simp add: x64_decode_def modsib_simp rex_simp nat_simp add.commute)
+          subgoal for index_reg scale v3 v2 v1 v0
+            using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+4" _]
+            using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+4" _]
+            using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+4" _]
+            using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+4" _]
+            apply (simp add: nat_simp add.commute)
+            using list_in_list_u8_list_of_u32_simp [of _ "pc+4" _]
             using length_u8_list_of_u32_eq_4
-            using construct_modsib_to_u8_imply_index_reg [of "False" index_reg base_reg "l ! pc" scale "l ! Suc (Suc (Suc pc))"]
-            using construct_modsib_to_u8_imply_base_reg [of "False" index_reg base_reg "l ! pc" scale "l ! Suc (Suc (Suc pc))"]
-            using construct_modsib_to_u8_imply_scale [of scale index_reg base_reg "l ! Suc (Suc (Suc pc))"]
-            subgoal by(cases base_reg; simp; cases index_reg; simp add: 
-                  construct_rex_to_u8_def construct_modsib_to_u8_def
-                    x64_decode_def bitfield_insert_u8_def Let_def ireg_of_u8_def
-                    add.commute Suc3_eq_add_3 Suc4_eq_add_4)
+            apply (simp add: modsib_simp rex_simp nat_simp add.commute)
             done
           done
         done
@@ -1814,10 +1857,18 @@ lemma x64_encode_decode_consistency:
 
   subgoal for dst
     \<comment> \<open> Ppopl_i \<close> 
+    apply ((erule case_optionE), simp)+
+    subgoal for v0
+      apply (cases dst; simp add: x64_decode_def construct_rex_to_u8_def bitfield_insert_u8_def ireg_of_u8_def)
+      done
+    done
+
+  subgoal for dst
+    \<comment> \<open> Ppopl_i \<close> 
     apply (erule conjE)+
     apply ((erule case_optionE), simp)+
     subgoal for v1 v0
-      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      apply (cases dst; simp add: x64_decode_def construct_rex_to_u8_def bitfield_insert_u8_def ireg_of_u8_def)
       done
     done
 
@@ -1838,33 +1889,64 @@ lemma x64_encode_decode_consistency:
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
       done
     done
-
-  subgoal for dst imm
-  \<comment> \<open> Ptestl_ri  \<close>
-    apply (unfold Let_def)
-    apply (cases "construct_rex_to_u8 False False False (and (u8_of_ireg dst) 8 \<noteq> 0) = 64";
-        simp_all add:construct_rex_to_u8_def construct_modsib_to_u8_def; erule conjE)
-    subgoal \<comment> \<open> rex = 0x40  \<close>
-      using list_in_list_u8_list_of_u32_simp_sym [of imm "(Suc (Suc pc))" l]
-      using length_u8_list_of_u32_eq_4
-      apply (cases dst; auto simp add: x64_decode_def bitfield_insert_u8_def Let_def
-          ireg_of_u8_def Suc3_eq_add_3 add.commute)
-      done
-
-    subgoal \<comment> \<open> rex <> 0x40  \<close>
-      using list_in_list_u8_list_of_u32_simp_sym [of imm "(pc+3)" l]
-      using length_u8_list_of_u32_eq_4
-      apply (cases dst; auto simp add: x64_decode_def bitfield_insert_u8_def Let_def
-          ireg_of_u8_def Suc3_eq_add_3 add.commute)
+  subgoal for dst src
+    \<comment> \<open> Ptestq_rr \<close>
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
       done
     done
 
   subgoal for dst imm
+  \<comment> \<open> Ptestl_ri  \<close>
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+2" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+2" _]
+      using length_u8_list_of_u32_eq_4
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
+      done
+    done
+  subgoal for dst imm
+  \<comment> \<open> Ptestl_ri  \<close>
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+3" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+3" _]
+      using length_u8_list_of_u32_eq_4
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
+      done
+    done
+
+
+  subgoal for dst imm
   \<comment> \<open> Ptestq_ri  \<close>
-    apply (unfold Let_def construct_rex_to_u8_def construct_modsib_to_u8_def)
-    using list_in_list_u8_list_of_u32_simp_sym [of imm "(Suc (Suc (Suc pc)))" l]
-    using length_u8_list_of_u32_eq_4
-    apply (cases dst; simp_all add: bitfield_insert_u8_def x64_decode_def ireg_of_u8_def Suc3_eq_add_3 add.commute)
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+3" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+3" _]
+      using length_u8_list_of_u32_eq_4
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
+      done
     done
 
   subgoal for dst src
@@ -1884,55 +1966,107 @@ lemma x64_encode_decode_consistency:
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
       done
     done
+  subgoal for dst src
+    \<comment> \<open> Pcmpq_rr \<close>
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      done
+    done
 
   subgoal for dst imm
   \<comment> \<open> Pcmpl_ri  \<close>
-    apply (unfold Let_def)
-    apply (cases "construct_rex_to_u8 False False False (and (u8_of_ireg dst) 8 \<noteq> 0) = 64";
-        simp_all add:construct_rex_to_u8_def construct_modsib_to_u8_def; erule conjE)
-    subgoal \<comment> \<open> rex = 0x40  \<close>
-      using list_in_list_u8_list_of_u32_simp_sym [of imm "(Suc (Suc pc))" l]
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+2" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+2" _]
       using length_u8_list_of_u32_eq_4
-      apply (cases dst; auto simp add: x64_decode_def bitfield_insert_u8_def Let_def
-          ireg_of_u8_def Suc3_eq_add_3 add.commute)
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
       done
-
-    subgoal \<comment> \<open> rex <> 0x40  \<close>
-      using list_in_list_u8_list_of_u32_simp_sym [of imm "(pc+3)" l]
+    done
+  subgoal for dst imm
+  \<comment> \<open> Pcmpl_ri  \<close>
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+3" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+3" _]
       using length_u8_list_of_u32_eq_4
-      apply (cases dst; auto simp add: x64_decode_def bitfield_insert_u8_def Let_def
-          ireg_of_u8_def Suc3_eq_add_3 add.commute)
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
       done
     done
 
   subgoal for dst imm
   \<comment> \<open> Pcmpq_ri\<close>
-    apply (unfold Let_def construct_rex_to_u8_def construct_modsib_to_u8_def; erule conjE; erule conjE; erule conjE)
-    using list_in_list_u8_list_of_u32_simp_sym [of imm "(Suc (Suc (Suc pc)))" l]
-    using length_u8_list_of_u32_eq_4
-    apply (cases dst; simp_all add: bitfield_insert_u8_def x64_decode_def ireg_of_u8_def Suc3_eq_add_3 add.commute)
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+3" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+3" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+3" _]
+      using length_u8_list_of_u32_eq_4
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
+      done
     done
 
   subgoal for test imm
     \<comment> \<open> Pjcc \<close>
-    subgoal 
-      using list_in_list_u8_list_of_u32_simp_sym [of imm "(Suc (Suc pc))" l]
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+2" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+2" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+2" _]
       using length_u8_list_of_u32_eq_4
-      apply (cases test; auto simp add: x64_decode_def bitfield_insert_u8_def Let_def ireg_of_u8_def
-             cond_of_u8_def Suc3_eq_add_3 add.commute)
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
       done
     done
 
   subgoal for imm
     \<comment> \<open> Pjmp \<close>
-    subgoal 
-      using list_in_list_u8_list_of_u32_simp_sym [of imm "(Suc pc)" l]
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+1" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+1" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+1" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+1" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+1" _]
       using length_u8_list_of_u32_eq_4
-      apply (auto simp add: x64_decode_def bitfield_insert_u8_def Let_def ireg_of_u8_def
-            Suc3_eq_add_3 add.commute)
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
       done
     done
 
+  subgoal for dst 
+    \<comment> \<open> Pcall_r \<close> 
+    apply (erule conjE)+
+    apply ((erule case_optionE), simp)+
+    subgoal for v1 v0
+      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
+      done
+    done
   subgoal for dst 
     \<comment> \<open> Pcall_r \<close> 
     apply (erule conjE)+
@@ -1946,23 +2080,23 @@ lemma x64_encode_decode_consistency:
     \<comment> \<open> Pcall_i \<close> 
     apply (erule conjE)+
     apply ((erule case_optionE), simp)+
-    subgoal for v1 v0
+    subgoal for v0
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
-      done
-    done
-    subgoal 
-      using list_in_list_u8_list_of_u32_simp_sym [of imm "(Suc pc)" l]
+      using list_in_list_u8_list_of_u32_simp_0 [of _ "pc+1" _]
+      using list_in_list_u8_list_of_u32_simp_1 [of _ "pc+1" _]
+      using list_in_list_u8_list_of_u32_simp_2 [of _ "pc+1" _]
+      using list_in_list_u8_list_of_u32_simp_3 [of _ "pc+1" _]
+      apply (simp add: nat_simp add.commute)
+      using list_in_list_u8_list_of_u32_simp [of _ "pc+1" _]
       using length_u8_list_of_u32_eq_4
-      apply (auto simp add: x64_decode_def bitfield_insert_u8_def Let_def ireg_of_u8_def
-            Suc3_eq_add_3 add.commute)
+      apply (simp add: modsib_simp rex_simp nat_simp add.commute)
       done
     done
 
   subgoal 
     \<comment> \<open> Pret \<close>
-    apply (erule conjE)+
     apply ((erule case_optionE), simp)+
-    subgoal for v1 v0
+    subgoal for v0
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
       done
     done
@@ -1978,14 +2112,12 @@ lemma x64_encode_decode_consistency:
 
   subgoal 
     \<comment> \<open> Pnop \<close>
-    apply (erule conjE)+
     apply ((erule case_optionE), simp)+
-    subgoal for v1 v0
+    subgoal for v0
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
       done
     done
   done
-*)
 
 declare if_split_asm [split del]
 end
