@@ -11,92 +11,74 @@ imports
   x64_encode_cqo_1
   x64_encode_negl_r_1 x64_encode_negl_r_2 x64_encode_negl_r_3 x64_encode_negl_r_4
   x64_encode_negq_r_1 
-  x64_encode_movl_ri_1 x64_encode_movl_ri_2 x64_encode_movl_ri_3 x64_encode_movl_ri_4*)
-  x64_encode_subl_ri_1 x64_encode_subl_ri_2 x64_encode_subl_ri_3  x64_encode_movl_ri_3
+  x64_encode_movl_ri_1 x64_encode_movl_ri_2 x64_encode_movl_ri_3 x64_encode_movl_ri_4
+  x64_encode_subl_ri_1 x64_encode_subl_ri_2   x64_encode_movl_ri_3*)
 begin
+
+lemma "and 3 (reg >> 6) = 3 \<Longrightarrow>
+    bitfield_insert_u8 3 (Suc 0) (and 7 (reg >> 3)) 0 = 0 \<Longrightarrow>
+    ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) 0) = Some dst \<Longrightarrow>
+    construct_rex_to_u8 False False False (and (u8_of_ireg dst) 8 \<noteq> 0) = 64 
+     \<Longrightarrow> reg = construct_modsib_to_u8 3 0 (u8_of_ireg dst)"
+  apply (unfold bitfield_insert_u8_def construct_rex_to_u8_def ireg_of_u8_def construct_modsib_to_u8_def Let_def)
+  apply (cases dst; simp)
+
+
+
+
 
 declare if_split_asm [split]
 
+declare Let_def [simp]
+declare x64_decode_op_not_rex_def [simp]
+declare x64_decode_op_0x66_def [simp]
+declare x64_decode_op_0x0f_def [simp]
+declare x64_decode_op_0x81_def [simp]
+
 lemma x64_decode_encode_consistency:
   "list_in_list l_bin pc l \<Longrightarrow> x64_decode pc l = Some (length l_bin, ins) \<Longrightarrow>  Some l_bin = x64_encode ins"
-  apply (cases ins; simp_all)
-                      prefer 25
-  subgoal for dst imm
-  \<comment> \<open> Psubl_ri 25\<close> 
-    apply (unfold Let_def)
-    apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
-    apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
-    subgoal 
-      apply (cases l_bin, simp_all)
-      subgoal for l_bin1
-        apply (cases l_bin1, simp_all)
-        subgoal for l_bin2
-          apply (cases l_bin2, simp_all)
-          subgoal for l_bin3
-            apply (cases l_bin3, simp_all)
-            subgoal for l_bin4
-              apply (cases l_bin4, simp_all)
-              subgoal for l_bin5
-                apply (cases l_bin5, simp_all)
-                subgoal for t l_bin6 
-                  using encode_subl_ri_1 by presburger
-                done
-              done
-            done
-          done
-        done
-      done
+  apply (unfold x64_decode_def)
 
-    subgoal 
-      apply (cases l_bin, simp_all)
-      subgoal for l_bin1
-        apply (cases l_bin1, simp_all)
-        subgoal for l_bin2
-          apply (cases l_bin2, simp_all)
-          subgoal for l_bin3
-            apply (cases l_bin3, simp_all)
-            subgoal for l_bin4
-              apply (cases l_bin4, simp_all)
-              subgoal for l_bin5
-                apply (cases l_bin5, simp_all)
-                subgoal for t l_bin6 
-                  using encode_subl_ri_2
-                  by (metis One_nat_def Suc_eq_plus1 list.sel(3) list.size(3) list.size(4) nat_1_add_1 numeral_3_eq_3 numeral_eq_iff semiring_norm(88) u32_of_u8_list_same) 
-                done
-              done
-            done
-          done
-        done
-      done
+  apply (cases "nth_error l pc"; simp)
+  subgoal for h
+    by (cases l_bin; simp)
 
-    subgoal 
-      using encode_movl_ri_3 by blast
+  subgoal for h
+    by (cases l_bin; simp)
 
-    subgoal 
-      apply (cases l_bin, simp_all)
-      subgoal for l_bin1
-        apply (cases l_bin1, simp_all)
-        subgoal for l_bin2
-          apply (cases l_bin2, simp_all)
-          subgoal for l_bin3
-            apply (cases l_bin3, simp_all)
-            subgoal for l_bin4
-              apply (cases l_bin4, simp_all)
-              subgoal for l_bin5
-                apply (cases l_bin5, simp_all)
-                subgoal for l_bin6
-                  apply (cases l_bin6, simp_all)
-                  subgoal for t l_bin7
-                    apply (cases l_bin7, simp_all)
-                    using x64_encode_subl_ri_3
-                  done
-                done
-              done
-            done
-          done
-        done
-      done
-    done
+  subgoal for h
+    by (cases l_bin; simp)
+
+  subgoal for h
+    apply (cases "nth_error l (Suc pc)"; simp)
+    subgoal for h1 
+      apply (cases "nth_error l (Suc (Suc pc))"; simp)
+      subgoal for reg
+        apply (cases "nth_error l (pc + 3)"; simp)
+        subgoal for imm
+          apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) 0)";simp)
+          subgoal for dst
+            apply (erule conjE)
+            apply (drule sym[of _ ins], simp)
+            apply (rule conjI; rule impI)
+            subgoal 
+              apply (cases l_bin; simp)
+              subgoal for l1
+                apply (cases l1; simp)
+                subgoal for l2
+                  apply (cases l2; simp)
+                  subgoal for l3
+                    apply (cases l3; simp)
+                    subgoal for i1 l4
+                      apply (cases "nth_error l (Suc (Suc (Suc pc)))" ; simp)
+                      subgoal for i2
+                        apply (rule conjI)
+                        subgoal 
+
+
+
+
+
 
 
 
@@ -690,6 +672,86 @@ Proof done
                 done
               done
             done
+
+
+                      prefer 25
+  subgoal for dst imm
+  \<comment> \<open> Psubl_ri 25\<close> 
+    apply (unfold Let_def)
+    apply (unfold construct_rex_to_u8_def construct_modsib_to_u8_def)
+    apply (unfold x64_decode_def Let_def, auto simp add: split: option.splits)
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+          apply (cases l_bin2, simp_all)
+          subgoal for l_bin3
+            apply (cases l_bin3, simp_all)
+            subgoal for l_bin4
+              apply (cases l_bin4, simp_all)
+              subgoal for l_bin5
+                apply (cases l_bin5, simp_all)
+                subgoal for t l_bin6 
+                  using encode_subl_ri_1 by presburger
+                done
+              done
+            done
+          done
+        done
+      done
+
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+          apply (cases l_bin2, simp_all)
+          subgoal for l_bin3
+            apply (cases l_bin3, simp_all)
+            subgoal for l_bin4
+              apply (cases l_bin4, simp_all)
+              subgoal for l_bin5
+                apply (cases l_bin5, simp_all)
+                subgoal for t l_bin6 
+                  using encode_subl_ri_2
+                  by (metis One_nat_def Suc_eq_plus1 list.sel(3) list.size(3) list.size(4) nat_1_add_1 numeral_3_eq_3 numeral_eq_iff semiring_norm(88) u32_of_u8_list_same) 
+                done
+              done
+            done
+          done
+        done
+      done
+
+    subgoal 
+      using encode_movl_ri_3 by blast
+
+    subgoal 
+      apply (cases l_bin, simp_all)
+      subgoal for l_bin1
+        apply (cases l_bin1, simp_all)
+        subgoal for l_bin2
+          apply (cases l_bin2, simp_all)
+          subgoal for l_bin3
+            apply (cases l_bin3, simp_all)
+            subgoal for l_bin4
+              apply (cases l_bin4, simp_all)
+              subgoal for l_bin5
+                apply (cases l_bin5, simp_all)
+                subgoal for l_bin6
+                  apply (cases l_bin6, simp_all)
+                  subgoal for t l_bin7
+                    apply (cases l_bin7, simp_all)
+                    using x64_encode_subl_ri_3
+                  done
+                done
+              done
+            done
+          done
+        done
+      done
+    done
+
 
   \<comment> \<open> stop here \<close>
           subgoal for l_bin1

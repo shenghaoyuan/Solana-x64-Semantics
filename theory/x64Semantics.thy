@@ -166,10 +166,10 @@ definition exec_call :: "u64  \<Rightarrow> memory_chunk \<Rightarrow> mem \<Rig
   let nsp = Val.sub64 (rs (IR SP)) (vlong_of_memory_chunk chunk) in
     case nsp of
     Vlong addr \<Rightarrow> (
-      case Mem.storev M64 m addr v of
+      case Mem.storev M64 m addr (Val.add64 (rs RIP) (Vlong sz)) of
         None \<Rightarrow> Stuck |
         Some m' \<Rightarrow> let rs1 = rs#(IR SP) <- nsp in
-                  Next (rs1#PC <- v) m'
+                  Next (rs1#PC <- (Val.add64 (rs RIP)  v)) m'
     ) |
     _ \<Rightarrow> Stuck
 )"
