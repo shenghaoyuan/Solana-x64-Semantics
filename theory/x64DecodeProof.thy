@@ -5,7 +5,7 @@ imports
   x64Assembler x64Disassembler BitsOpMore BitsOpMore2 BitsOpMore3 BitsOpMore4
   x64DecodeProofAux
 begin
-(* It may take more than one hour to run this proof *)
+(* It may take more than two hour to run this proof *)
 
 named_theorems rex_simp
 
