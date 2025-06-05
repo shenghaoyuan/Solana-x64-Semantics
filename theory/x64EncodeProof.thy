@@ -15,13 +15,85 @@ imports
   x64_encode_subl_ri_1 x64_encode_subl_ri_2   x64_encode_movl_ri_3*)
 begin
 
-lemma "and 3 (reg >> 6) = 3 \<Longrightarrow>
-    bitfield_insert_u8 3 (Suc 0) (and 7 (reg >> 3)) 0 = 0 \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) 0) = Some dst \<Longrightarrow>
-    construct_rex_to_u8 False False False (and (u8_of_ireg dst) 8 \<noteq> 0) = 64 
-     \<Longrightarrow> reg = construct_modsib_to_u8 3 0 (u8_of_ireg dst)"
-  apply (unfold bitfield_insert_u8_def construct_rex_to_u8_def ireg_of_u8_def construct_modsib_to_u8_def Let_def)
-  apply (cases dst; simp)
+lemma u8_of_ireg_of_u8_implies: "(ireg_of_u8 i = Some r) \<Longrightarrow> (u8_of_ireg r = i)"
+  using u8_of_ireg_of_u8_iff by blast
+
+lemma word_and_le_2: "and x y = z \<Longrightarrow> (y :: 'a :: len word) < z \<Longrightarrow> False"
+  using word_le_def AND_upper2'' word_and_le1
+  using leD by blast
+
+lemma bitfield_insert_u8_3_1_0: "ireg_of_u8 (bitfield_insert_u8 3 1 n 0) = Some dst \<Longrightarrow>
+    and (u8_of_ireg dst) 8 = 0"
+  apply (drule u8_of_ireg_of_u8_implies, simp)
+  apply (simp add: bitfield_insert_u8_def unsigned_bitfield_extract_u8_def ireg_of_u8_def split: if_split_asm)
+  apply (simp add: and.assoc)
+  done
+
+lemma and_length_eq: "and (2^LENGTH('a) -1) x = (x::'a :: len word)"
+  by simp
+
+lemma and_length_eq_u8: "and 255 x = (x::8 word)"
+  apply (subgoal_tac "2^LENGTH(8)-1 = (255::u8)")
+  subgoal using and_length_eq
+    by metis 
+  subgoal by simp
+  done
+
+lemma unsigned_bitfield_extract_u8_0_8_eq: "unsigned_bitfield_extract_u8 0 8 x = (x::u8)"
+  by (simp add: unsigned_bitfield_extract_u8_def Let_def and_length_eq_u8)
+
+
+lemma and_shr_shl_eq: "and ((2^LENGTH('a) -1) - (2^n -1)) ((x >> n) << n) =
+  and ((2^LENGTH('a) -1) - (2^n -1)) (x::'a :: len word)"
+  apply (simp add: bit_eq_iff)
+  apply (simp add: bit_simps)
+  by (metis add_diff_inverse_nat bit_iff_odd even_mask_div_iff exp_eq_0_imp_not_bit linorder_not_le)
+
+lemma and_shr_shl_eq_u8_6: "(and 192 ((x >> 6) << 6)) = and 192 (x:: 8 word)"
+  apply (subgoal_tac "(2^LENGTH(8) -1) - (2^6 -1) = (192::u8)")
+  subgoal using and_shr_shl_eq
+    by metis
+
+  subgoal by simp
+  done
+
+lemma unsigned_bitfield_extract_u8_split_eq :"
+  m+n = 8 \<Longrightarrow>
+  unsigned_bitfield_extract_u8 0 m r = x \<Longrightarrow>
+  unsigned_bitfield_extract_u8 m n r = v \<Longrightarrow>
+    bitfield_insert_u8 m n x v = (r::u8)"
+  apply (erule subst [of _ v])
+  apply (erule subst [of _ x])
+  apply (simp add: bitfield_insert_u8_def unsigned_bitfield_extract_u8_def Let_def)
+
+lemma unsigned_bitfield_extract_u8_0_6_2_eq :"
+  unsigned_bitfield_extract_u8 0 6 r = x \<Longrightarrow>
+  unsigned_bitfield_extract_u8 6 2 r = v \<Longrightarrow>
+    bitfield_insert_u8 6 2 x v = (r::u8)"
+  apply (erule subst [of _ v])
+  apply (erule subst [of _ x])
+  apply (simp add: bitfield_insert_u8_def unsigned_bitfield_extract_u8_def Let_def)
+  apply (simp add: and_shr_shl_eq_u8_6)
+  apply (simp add: and.commute [of _ "- 193"] and.assoc[symmetric])
+  sorry
+
+
+(*
+lemma bitfield_insert_u8_3_1_1: "ireg_of_u8 (bitfield_insert_u8 3 1 n 1) = Some dst \<Longrightarrow>
+    and (u8_of_ireg dst) 8 = 1"
+  apply (drule u8_of_ireg_of_u8_implies, simp)
+  apply (simp add: bitfield_insert_u8_def unsigned_bitfield_extract_u8_def ireg_of_u8_def split: if_split_asm)
+  apply (simp add: and.assoc)
+  done *)
+find_theorems "and 7 _"
+lemma "
+  unsigned_bitfield_extract_u8 6 2 reg = 3 \<Longrightarrow>
+  bitfield_insert_u8 3 (Suc 0) (unsigned_bitfield_extract_u8 3 3 reg) 0 = 0 \<Longrightarrow>
+  ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (unsigned_bitfield_extract_u8 0 3 reg) 0) = Some dst \<Longrightarrow>
+  construct_rex_to_u8 False False False (and (u8_of_ireg dst) 8 \<noteq> 0) = 64 
+     \<Longrightarrow> construct_modsib_to_u8 3 0 (u8_of_ireg dst) = reg"
+  apply (drule u8_of_ireg_of_u8_implies, simp add: construct_modsib_to_u8_def)
+  apply (rule unsigned_bitfield_extract_u8_0_6_2_eq; simp?)
 
 
 
@@ -56,7 +128,7 @@ lemma x64_decode_encode_consistency:
       subgoal for reg
         apply (cases "nth_error l (pc + 3)"; simp)
         subgoal for imm
-          apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) 0)";simp)
+          apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (unsigned_bitfield_extract_u8 0 3 reg) 0)"; simp)
           subgoal for dst
             apply (erule conjE)
             apply (drule sym[of _ ins], simp)

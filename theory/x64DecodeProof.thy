@@ -47,7 +47,7 @@ lemma construct_rex_to_u8_dst [rex_simp]: "construct_rex_to_u8 b0 b1 b2 (and (u8
   apply (drule sym [of _ v1])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
   apply (simp add: bit_simp)
   apply (cases b0; cases b1; cases b2; cases dst; simp)
   done
@@ -495,7 +495,7 @@ lemma construct_modsib_to_u8_and_7_eq_4 [modsib_simp]: "
   apply (drule sym [of _ v1])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
   apply (simp add: bit_simp)
   done
 
@@ -506,7 +506,7 @@ lemma construct_modsib_to_u8_and_1_dst [modsib_simp]: "
   apply (drule sym [of _ v1])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
   apply (simp add: bit_simp)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
   apply (simp add: bit.conj_disj_distrib)
@@ -545,7 +545,7 @@ lemma construct_modsib_to_u8_3 [modsib_simp]: "
 lemma construct_modsib_to_u8_and_7 [modsib_simp]: "construct_modsib_to_u8 a b c = v1 \<Longrightarrow>
   and (7::8 word) (v1 >> (3::nat)) = and 7 b"
   apply (drule sym [of _ v1])
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def)
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
   apply (simp add: bit_simp)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
 
@@ -564,7 +564,7 @@ lemma construct_modsib_to_u8_and_7_neq [modsib_simp]: "
   construct_modsib_to_u8 x y (u8_of_ireg r) = v1 \<Longrightarrow>
     and 7 v1 \<noteq> z"
   apply (drule sym [of _ v1])
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def)
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
   apply (simp add: bit.conj_disj_distrib)
   apply (simp add: and.left_commute and.assoc[symmetric])
   apply (simp add: and.commute [of _ "(- (57::8 word))"])
@@ -586,6 +586,7 @@ TODO:  if I add this many-declaration,
 the simp can not simple most of those defs
  *)
 declare Let_def [simp]
+declare unsigned_bitfield_extract_u8_def [simp]
 declare x64_decode_op_not_rex_def [simp]
 declare x64_decode_op_0x66_def [simp]
 declare x64_decode_op_0x0f_def [simp]
@@ -2120,4 +2121,12 @@ lemma x64_encode_decode_consistency:
   done
 
 declare if_split_asm [split del]
+
+declare Let_def [simp del]
+declare unsigned_bitfield_extract_u8_def [simp del]
+declare x64_decode_op_not_rex_def [simp del]
+declare x64_decode_op_0x66_def [simp del]
+declare x64_decode_op_0x0f_def [simp del]
+declare x64_decode_op_0x81_def [simp del]
+
 end
