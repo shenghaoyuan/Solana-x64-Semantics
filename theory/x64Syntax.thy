@@ -261,5 +261,14 @@ lemma u8_of_ireg_of_u8_iff: "(u8_of_ireg r = i) = (ireg_of_u8 i = Some r)"
 lemma u8_of_cond_of_u8_iff: "(u8_of_cond r = i) = (cond_of_u8 i = Some r)"
   by (cases r, auto simp add: cond_of_u8_def)
 
+lemma u8_of_ireg_of_u8_implies: "(ireg_of_u8 i = Some r) \<Longrightarrow> (u8_of_ireg r = i)"
+  using u8_of_ireg_of_u8_iff by blast
 
+
+lemma bitfield_insert_3_1_0: "ireg_of_u8 (bitfield_insert 3 1 n 0) = Some dst \<Longrightarrow>
+    and (u8_of_ireg dst) 8 = 0"
+  apply (drule u8_of_ireg_of_u8_implies, simp)
+  apply (simp add: bitfield_insert_def bitfield_extract_def ireg_of_u8_def split: if_split_asm)
+  apply (simp add: and.assoc)
+  done
 end

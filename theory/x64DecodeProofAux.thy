@@ -157,10 +157,10 @@ lemma construct_modsib_to_u8_imply_base_reg_simp: "
   rex = construct_rex_to_u8 b0 b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
     (and (u8_of_ireg base_reg) 8 \<noteq> 0) \<Longrightarrow>
   v = construct_modsib_to_u8 scale (u8_of_ireg index_reg) (u8_of_ireg base_reg) \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 3 1 (unsigned_bitfield_extract_u8 0 3 v)
-      (unsigned_bitfield_extract_u8 0 1 rex)) = Some base_reg"
+    ireg_of_u8 (bitfield_insert 3 1 (bitfield_extract 0 3 v)
+      (bitfield_extract 0 1 rex)) = Some base_reg"
   apply (simp add: construct_rex_to_u8_def construct_modsib_to_u8_def
-      bitfield_insert_u8_def unsigned_bitfield_extract_u8_def Let_def)
+      bitfield_insert_def bitfield_extract_def Let_def)
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: bit_simp bit_simps)
   apply (simp add: bit.conj_disj_distrib) (**TODO: here could we find a way to solve it automatically, NP hard? *)
@@ -176,18 +176,18 @@ lemma construct_modsib_to_u8_imply_base_reg: "
   construct_rex_to_u8 b0 b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
     (and (u8_of_ireg base_reg) 8 \<noteq> 0) = rex \<Longrightarrow>
   construct_modsib_to_u8 scale (u8_of_ireg index_reg) (u8_of_ireg base_reg) = v \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 3 1 (unsigned_bitfield_extract_u8 0 3 v)
-      (unsigned_bitfield_extract_u8 0 1 rex)) = Some base_reg"
+    ireg_of_u8 (bitfield_insert 3 1 (bitfield_extract 0 3 v)
+      (bitfield_extract 0 1 rex)) = Some base_reg"
   using construct_modsib_to_u8_imply_base_reg_simp by blast
 
 lemma construct_modsib_to_u8_imply_index_reg_simp: "
   rex = construct_rex_to_u8 True b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
     (and (u8_of_ireg base_reg) 8 \<noteq> 0) \<Longrightarrow>
   v = construct_modsib_to_u8 scale (u8_of_ireg index_reg) (u8_of_ireg base_reg) \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 3 1 (unsigned_bitfield_extract_u8 3 3 v)
-      (unsigned_bitfield_extract_u8 1 1 rex)) = Some index_reg"
+    ireg_of_u8 (bitfield_insert 3 1 (bitfield_extract 3 3 v)
+      (bitfield_extract 1 1 rex)) = Some index_reg"
   apply (simp add: construct_rex_to_u8_def construct_modsib_to_u8_def
-      bitfield_insert_u8_def unsigned_bitfield_extract_u8_def Let_def)
+      bitfield_insert_def bitfield_extract_def Let_def)
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp only: bit_simp)
   apply (simp add: bit.conj_disj_distrib) (**TODO: here could we find a way to solve it automatically, NP hard? *)
@@ -201,8 +201,8 @@ lemma construct_modsib_to_u8_imply_index_reg: "
   construct_rex_to_u8 True b (and (u8_of_ireg index_reg) 8 \<noteq> 0)
     (and (u8_of_ireg base_reg) 8 \<noteq> 0) = rex \<Longrightarrow>
   construct_modsib_to_u8 scale (u8_of_ireg index_reg) (u8_of_ireg base_reg) = v \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 3 1 (unsigned_bitfield_extract_u8 3 3 v)
-      (unsigned_bitfield_extract_u8 1 1 rex)) = Some index_reg"
+    ireg_of_u8 (bitfield_insert 3 1 (bitfield_extract 3 3 v)
+      (bitfield_extract 1 1 rex)) = Some index_reg"
   using construct_modsib_to_u8_imply_index_reg_simp by blast
 
 lemma word_of_nat_3_eq: "word_of_nat n \<le> (3::u8) \<longleftrightarrow> ((word_of_nat n) ::u8) \<le> word_of_nat 3"
@@ -245,13 +245,13 @@ lemma scale_le3_eq: "\<not> 3 < scale \<Longrightarrow> and 3 ((scale << 6) >> 6
 
 lemma construct_modsib_to_u8_imply_scale_simp: " \<not> 3 < scale \<Longrightarrow>
   v = construct_modsib_to_u8 scale (u8_of_ireg index_reg) (u8_of_ireg base_reg) \<Longrightarrow>
-    unsigned_bitfield_extract_u8 6 2 v = scale"
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def Let_def)
+    bitfield_extract 6 2 v = scale"
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_def bitfield_extract_def Let_def)
   using scale_le3_eq by blast
 
 lemma construct_modsib_to_u8_imply_scale: " \<not> 3 < scale \<Longrightarrow>
   construct_modsib_to_u8 scale (u8_of_ireg index_reg) (u8_of_ireg base_reg) = v \<Longrightarrow>
-    unsigned_bitfield_extract_u8 6 2 v = scale"
+    bitfield_extract 6 2 v = scale"
   using construct_modsib_to_u8_imply_scale_simp by blast
 
 lemma bit_n_ge: "bit v n \<Longrightarrow> (v::u32) \<ge> 2^n"

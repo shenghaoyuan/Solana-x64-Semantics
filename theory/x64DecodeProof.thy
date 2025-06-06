@@ -10,19 +10,17 @@ begin
 named_theorems rex_simp
 
 lemma construct_rex_to_u8_min [rex_simp]:"64 \<le> construct_rex_to_u8 w r x b"
-  using construct_rex_to_u8_def bitfield_insert_u8_def Let_def
-  by (cases w; cases r; cases x; cases b; simp)
+  by (cases w; cases r; cases x; cases b; simp add: construct_rex_to_u8_def bitfield_insert_def Let_def)
 
 lemma construct_rex_to_u8_max [rex_simp]:"construct_rex_to_u8 w r x b \<le> 79"
-  using construct_rex_to_u8_def bitfield_insert_u8_def Let_def
-  by (cases w; cases r; cases x; cases b; simp)
+  by (cases w; cases r; cases x; cases b; simp add: construct_rex_to_u8_def bitfield_insert_def Let_def)
 
 lemma construct_rex_to_u8_src [rex_simp]: "construct_rex_to_u8 b0 (and (u8_of_ireg src) (8::8 word) \<noteq> 0) b1 b2 = (64::8 word) \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) (u8_of_ireg src)) 0) =
+    ireg_of_u8 (bitfield_insert (3::nat) (Suc 0) (and (7::8 word) (u8_of_ireg src)) 0) =
     Some src"
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
   apply (simp add: bit.conj_disj_distrib)
   apply (simp add: and.assoc[symmetric])
@@ -32,22 +30,22 @@ lemma construct_rex_to_u8_src [rex_simp]: "construct_rex_to_u8 b0 (and (u8_of_ir
   done
 
 lemma construct_rex_to_u8_and_1_src [rex_simp]: "
-    ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) (u8_of_ireg src)) (u8_of_bool (and (u8_of_ireg src) (8::8 word) \<noteq> 0))) =
+    ireg_of_u8 (bitfield_insert (3::nat) (Suc 0) (and (7::8 word) (u8_of_ireg src)) (u8_of_bool (and (u8_of_ireg src) (8::8 word) \<noteq> 0))) =
     Some src"
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases src; simp)
   done
 
 lemma construct_rex_to_u8_dst [rex_simp]: "construct_rex_to_u8 b0 b1 b2 (and (u8_of_ireg dst) (8::8 word) \<noteq> 0) = (64::8 word) \<Longrightarrow>
     construct_modsib_to_u8 s1 s2 (u8_of_ireg dst) = v1 \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) v1) 0) =
+    ireg_of_u8 (bitfield_insert (3::nat) (Suc 0) (and (7::8 word) v1) 0) =
     Some dst"
   apply (drule sym [of _ v1])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def bitfield_extract_def)
   apply (simp add: bit_simp)
   apply (cases b0; cases b1; cases b2; cases dst; simp)
   done
@@ -57,7 +55,7 @@ lemma construct_rex_to_u8_neq_195 [rex_simp]: "
     v \<noteq> 195"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -66,7 +64,7 @@ lemma construct_rex_to_u8_neq_153 [rex_simp]: "
     v \<noteq> 153"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -75,7 +73,7 @@ lemma construct_rex_to_u8_neq_144 [rex_simp]: "
     v \<noteq> 144"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -84,7 +82,7 @@ lemma construct_rex_to_u8_neq_102 [rex_simp]: "
     v \<noteq> 102"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -93,7 +91,7 @@ lemma construct_rex_to_u8_neq_15 [rex_simp]: "
     v \<noteq> 15"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -102,7 +100,7 @@ lemma construct_rex_to_u8_neq_11 [rex_simp]: "
     and (31::8 word) (v >> (3::nat)) \<noteq> 11"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b3; simp)
   done
 
@@ -111,7 +109,7 @@ lemma construct_rex_to_u8_neq_10 [rex_simp]: "
     and (31::8 word) (v >> (3::nat)) \<noteq> 10"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b3; simp)
   done
 
@@ -121,7 +119,7 @@ lemma construct_rex_to_u8_neq_64_neq_0 [rex_simp]: "
     and (15::8 word) v \<noteq> 0"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -130,7 +128,7 @@ lemma construct_rex_to_u8_b0_neq_0 [rex_simp]: "
     and (15::8 word) v \<noteq> 0"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b1; cases b2; cases b3; simp)
   done
 
@@ -139,7 +137,7 @@ lemma construct_rex_to_u8_b1_neq_0 [rex_simp]: "
     and (15::8 word) v \<noteq> 0"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b2; cases b3; simp)
   done
 
@@ -148,7 +146,7 @@ lemma construct_rex_to_u8_b2_neq_0 [rex_simp]: "
     and (15::8 word) v \<noteq> 0"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b3; simp)
   done
 
@@ -157,7 +155,7 @@ lemma construct_rex_to_u8_b3_neq_0 [rex_simp]: "
     and (15::8 word) v \<noteq> 0"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; simp)
   done
 
@@ -166,7 +164,7 @@ lemma construct_rex_to_u8_eq_4 [rex_simp]: "
   and (15::8 word) (v >> (4::nat)) = 4"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   done
 
 lemma construct_rex_to_u8_eq_bit_3 [rex_simp]: "
@@ -174,7 +172,7 @@ lemma construct_rex_to_u8_eq_bit_3 [rex_simp]: "
   bit v 3 = b0"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -183,7 +181,7 @@ lemma construct_rex_to_u8_eq_bit_2 [rex_simp]: "
   bit v 2 = b1"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -192,7 +190,7 @@ lemma construct_rex_to_u8_eq_bit_1 [rex_simp]: "
   bit v 1 = b2"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -201,7 +199,7 @@ lemma construct_rex_to_u8_eq_bit_0 [rex_simp]: "
   bit v 0 = b3"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -210,7 +208,7 @@ lemma construct_rex_to_u8_eq_bit_1_neg [rex_simp]: "
   \<not> bit v (Suc 0)"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases b0; cases b1; cases b3; simp)
   done
 
@@ -220,7 +218,7 @@ lemma construct_rex_to_u8_eq_and_1 [rex_simp]: "
   and 1 v = u8_of_bool b3"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def u8_of_bool_def)
+      construct_modsib_to_u8_def bitfield_insert_def u8_of_bool_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -229,7 +227,7 @@ lemma construct_rex_to_u8_eq_and_1_shr_1 [rex_simp]: "
   and 1 (v>>1) = u8_of_bool b2"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def u8_of_bool_def)
+      construct_modsib_to_u8_def bitfield_insert_def u8_of_bool_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -238,7 +236,7 @@ lemma construct_rex_to_u8_eq_and_1_shr_2 [rex_simp]: "
   and 1 (v>>2) = u8_of_bool b1"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def u8_of_bool_def)
+      construct_modsib_to_u8_def bitfield_insert_def u8_of_bool_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
@@ -247,217 +245,213 @@ lemma construct_rex_to_u8_eq_and_1_shr_3 [rex_simp]: "
   and 1 (v>>3) = u8_of_bool b0"
   apply (drule sym [of _ v])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def u8_of_bool_def)
+      construct_modsib_to_u8_def bitfield_insert_def u8_of_bool_def)
   apply (cases b0; cases b1; cases b2; cases b3; simp)
   done
 
 
 (** bit insert related *)
-lemma bitfield_insert_u8_184_neq_15 [rex_simp]: "
-  bitfield_insert_u8 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
+lemma bitfield_insert_184_neq_15 [rex_simp]: "
+  bitfield_insert 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
   v1 \<noteq> 15"
-  using bitfield_insert_u8_def Let_def
-  by (cases dst; simp)
+  by (cases dst; simp add: bitfield_insert_def Let_def)
 
-lemma bitfield_insert_u8_184_neq_104 [rex_simp]: "
-  bitfield_insert_u8 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
+lemma bitfield_insert_184_neq_104 [rex_simp]: "
+  bitfield_insert 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
   v1 \<noteq> 104"
-  using bitfield_insert_u8_def Let_def
-  by (cases dst; simp)
+  by (cases dst; simp add: bitfield_insert_def Let_def)
 
-lemma bitfield_insert_u8_184_neq_153 [rex_simp]: "
-  bitfield_insert_u8 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
+lemma bitfield_insert_184_neq_153 [rex_simp]: "
+  bitfield_insert 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
   v1 \<noteq> 153"
-  using bitfield_insert_u8_def Let_def
-  by (cases dst; simp)
+  by (cases dst; simp add: bitfield_insert_def Let_def)
 
-lemma bitfield_insert_u8_184_eq_23 [rex_simp]: "
-  bitfield_insert_u8 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
+lemma bitfield_insert_184_eq_23 [rex_simp]: "
+  bitfield_insert 0 (3::nat) (184::8 word) (u8_of_ireg dst) = v1 \<Longrightarrow>
   and (31::8 word) (v1 >> (3::nat)) = 23"
-  using bitfield_insert_u8_def Let_def
-  by (cases dst; simp)
+  by (cases dst; simp add: bitfield_insert_def Let_def)
 
-lemma bitfield_insert_u8_dst [rex_simp]: "
-  bitfield_insert_u8 0 3 184 (u8_of_ireg dst) = v \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) v) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> 0))) =
+lemma bitfield_insert_dst [rex_simp]: "
+  bitfield_insert 0 3 184 (u8_of_ireg dst) = v \<Longrightarrow>
+    ireg_of_u8 (bitfield_insert (3::nat) (Suc 0) (and (7::8 word) v) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> 0))) =
     Some dst"
   apply (drule sym [of _ v])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (cases dst; simp)
   done
 
-lemma bitfield_insert_u8_and_15_neq_8 [rex_simp]: "
-  bitfield_insert_u8 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_and_15_neq_8 [rex_simp]: "
+  bitfield_insert 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
     and (15::8 word) (v >> (4::nat)) \<noteq> 8"
   apply (drule sym [of _ v])
-  apply (simp add: bitfield_insert_u8_def)
+  apply (simp add: bitfield_insert_def)
   done
 
-lemma bitfield_insert_u8_and_15_neq_25 [rex_simp]: "
-  bitfield_insert_u8 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_and_15_neq_25 [rex_simp]: "
+  bitfield_insert 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
     and (31::8 word) (v >> (3::nat)) \<noteq> 25"
   apply (drule sym [of _ v])
-  apply (simp add: bitfield_insert_u8_def)
+  apply (simp add: bitfield_insert_def)
   apply (cases test; simp)
   done
 
-lemma bitfield_insert_u8_neq_49 [rex_simp]: "
-  bitfield_insert_u8 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_neq_49 [rex_simp]: "
+  bitfield_insert 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
     v \<noteq> 49"
   apply (drule sym [of _ v])
-  apply (simp add: bitfield_insert_u8_def)
+  apply (simp add: bitfield_insert_def)
   apply (cases test; simp)
   done
 
-lemma bitfield_insert_u8_and_15_eq_4 [rex_simp]: "
-  bitfield_insert_u8 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_and_15_eq_4 [rex_simp]: "
+  bitfield_insert 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
     and (15::8 word) (v >> (4::nat)) = 4"
   apply (drule sym [of _ v])
-  apply (simp add: bitfield_insert_u8_def)
+  apply (simp add: bitfield_insert_def)
   done
 
 
-lemma bitfield_insert_u8_and_15_eq_test [rex_simp]: "
-  bitfield_insert_u8 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_and_15_eq_test [rex_simp]: "
+  bitfield_insert 0 (4::nat) (64::8 word) (u8_of_cond test) = v \<Longrightarrow>
     cond_of_u8 (and (15::8 word) v) = Some test"
   apply (drule sym [of _ v])
-  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases test; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_200_and_15_neq_8 [rex_simp]: "
-  bitfield_insert_u8 0 3 (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_200_and_15_neq_8 [rex_simp]: "
+  bitfield_insert 0 3 (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     and (15::8 word) (v >> (4::nat)) \<noteq> 8"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_200_and_15_neq_4 [rex_simp]: "
-  bitfield_insert_u8 0 3 (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_200_and_15_neq_4 [rex_simp]: "
+  bitfield_insert 0 3 (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     and (15::8 word) (v >> (4::nat)) \<noteq> 4"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_200_and_15_neq_49 [rex_simp]: "
-  bitfield_insert_u8 0 3 (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_200_and_15_neq_49 [rex_simp]: "
+  bitfield_insert 0 3 (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     v \<noteq> 49"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_200_and_31_eq_25 [rex_simp]: "
-  bitfield_insert_u8 0 3 (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_200_and_31_eq_25 [rex_simp]: "
+  bitfield_insert 0 3 (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     and (31::8 word) (v >> (3::nat)) = 25"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_80_neq_15 [rex_simp]: "
-  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_80_neq_15 [rex_simp]: "
+  bitfield_insert 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     v \<noteq> 15"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_80_neq_153 [rex_simp]: "
-  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_80_neq_153 [rex_simp]: "
+  bitfield_insert 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     v \<noteq> 153"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_80_neq_104 [rex_simp]: "
-  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_80_neq_104 [rex_simp]: "
+  bitfield_insert 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     v \<noteq> 104"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_80_and_31_neq_23 [rex_simp]: "
-  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_80_and_31_neq_23 [rex_simp]: "
+  bitfield_insert 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     and (31::8 word) (v >> (3::nat)) \<noteq> 23"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_80_and_31_neq_11 [rex_simp]: "
-  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_80_and_31_neq_11 [rex_simp]: "
+  bitfield_insert 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     and (31::8 word) (v >> (3::nat)) \<noteq> 11"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_80_and_31_eq_10 [rex_simp]: "
-  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+lemma bitfield_insert_80_and_31_eq_10 [rex_simp]: "
+  bitfield_insert 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
     and (31::8 word) (v >> (3::nat)) = 10"
   apply (drule sym [of _ v])
-  apply (cases dst; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases dst; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_128_and_15_neq_25 [rex_simp]: "
-  bitfield_insert_u8 (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_128_and_15_neq_25 [rex_simp]: "
+  bitfield_insert (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
    and (31::8 word) (v >> (3::nat)) \<noteq> (25::8 word)"
   apply (drule sym [of _ v])
-  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases test; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_128_neq_49 [rex_simp]: "
-  bitfield_insert_u8 (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_128_neq_49 [rex_simp]: "
+  bitfield_insert (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
    v \<noteq> 49"
   apply (drule sym [of _ v])
-  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases test; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_128_and_15_neq_8 [rex_simp]: "
-  bitfield_insert_u8 (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_128_and_15_neq_8 [rex_simp]: "
+  bitfield_insert (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
    and (15::8 word) (v >> (4::nat)) = 8"
   apply (drule sym [of _ v])
-  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases test; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_128_test [rex_simp]: "
-  bitfield_insert_u8 (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
+lemma bitfield_insert_128_test [rex_simp]: "
+  bitfield_insert (0::nat) (4::nat) (128::8 word) (u8_of_cond test) = v \<Longrightarrow>
    cond_of_u8 (and (15::8 word) v) = Some test"
   apply (drule sym [of _ v])
-  apply (cases test; simp add: bitfield_insert_u8_def cond_of_u8_def)
+  apply (cases test; simp add: bitfield_insert_def cond_of_u8_def)
   done
 
-lemma bitfield_insert_u8_80_dst [rex_simp]: "
-  bitfield_insert_u8 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
-  ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc (0::nat)) (and (7::8 word) v) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> (0::8 word)))) =
+lemma bitfield_insert_80_dst [rex_simp]: "
+  bitfield_insert 0 3 (80::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+  ireg_of_u8 (bitfield_insert (3::nat) (Suc (0::nat)) (and (7::8 word) v) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> (0::8 word)))) =
      Some dst"
   apply (drule sym [of _ v])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (simp add: bit.conj_disj_distrib)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
   apply (cases dst; simp)
   done
 
-lemma bitfield_insert_u8_200_src [rex_simp]: "
+lemma bitfield_insert_200_src [rex_simp]: "
   construct_rex_to_u8 False False False (and (u8_of_ireg dst) (8::8 word) \<noteq> 0) = (64::8 word) \<Longrightarrow>
-    bitfield_insert_u8 0 (3::nat) (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) v) 0) = Some dst"
+    bitfield_insert 0 (3::nat) (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+    ireg_of_u8 (bitfield_insert (3::nat) (Suc 0) (and (7::8 word) v) 0) = Some dst"
   apply (drule sym [of _ v])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (simp add: bit.conj_disj_distrib)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
   apply (cases dst; simp)
   done
 
-lemma bitfield_insert_u8_200_dst [rex_simp]: "
-    bitfield_insert_u8 0 (3::nat) (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) v) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> 0))) =
+lemma bitfield_insert_200_dst [rex_simp]: "
+    bitfield_insert 0 (3::nat) (200::8 word) (u8_of_ireg dst) = v \<Longrightarrow>
+    ireg_of_u8 (bitfield_insert (3::nat) (Suc 0) (and (7::8 word) v) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> 0))) =
      Some dst"
   apply (drule sym [of _ v])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (simp add: bit.conj_disj_distrib)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
   apply (cases dst; simp)
@@ -465,12 +459,12 @@ lemma bitfield_insert_u8_200_dst [rex_simp]: "
 
 lemma construct_rex_to_u8_reg [rex_simp]: "
   construct_rex_to_u8 b0 b1 (and (u8_of_ireg r) (8::8 word) \<noteq> 0) b3 = v \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) (u8_of_ireg r)) (and 1 (v >> Suc 0))) =
+    ireg_of_u8 (bitfield_insert (3::nat) (Suc 0) (and (7::8 word) (u8_of_ireg r)) (and 1 (v >> Suc 0))) =
     Some r"
   apply (drule sym [of _ v])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (simp add: bit.conj_disj_distrib)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
   apply (cases b0; cases b1; cases b3; cases r; simp)
@@ -485,7 +479,7 @@ lemma construct_modsib_to_u8_op1 [modsib_simp]: "
   apply (drule sym [of _ v])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def)
   apply (erule subst [of v])
   using scale_le3_eq by blast
 
@@ -495,18 +489,18 @@ lemma construct_modsib_to_u8_and_7_eq_4 [modsib_simp]: "
   apply (drule sym [of _ v1])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def bitfield_extract_def)
   apply (simp add: bit_simp)
   done
 
 lemma construct_modsib_to_u8_and_1_dst [modsib_simp]: "
   construct_modsib_to_u8 s1 s2 (u8_of_ireg dst) = v1 \<Longrightarrow>
-    ireg_of_u8 (bitfield_insert_u8 (3::nat) (Suc 0) (and (7::8 word) v1) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> 0))) =
+    ireg_of_u8 (bitfield_insert (3::nat) (Suc 0) (and (7::8 word) v1) (u8_of_bool (and (u8_of_ireg dst) (8::8 word) \<noteq> 0))) =
     Some dst"
   apply (drule sym [of _ v1])
   apply (simp only: u8_of_ireg_of_u8_iff[symmetric])
   apply (simp add: construct_rex_to_u8_def
-      construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
+      construct_modsib_to_u8_def bitfield_insert_def bitfield_extract_def)
   apply (simp add: bit_simp)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
   apply (simp add: bit.conj_disj_distrib)
@@ -518,34 +512,34 @@ lemma construct_modsib_to_u8_0 [modsib_simp]: "
   construct_modsib_to_u8 0 x y = v1 \<Longrightarrow>
     and (3::8 word) (v1 >> (6::nat)) = 0"
   apply (drule sym [of _ v1])
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def)
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_def)
   done
 
 lemma construct_modsib_to_u8_1 [modsib_simp]: "
   construct_modsib_to_u8 1 x y = v1 \<Longrightarrow>
     and (3::8 word) (v1 >> (6::nat)) = 1"
   apply (drule sym [of _ v1])
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def)
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_def)
   done
 
 lemma construct_modsib_to_u8_2 [modsib_simp]: "
   construct_modsib_to_u8 2 x y = v1 \<Longrightarrow>
     and (3::8 word) (v1 >> (6::nat)) = 2"
   apply (drule sym [of _ v1])
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def)
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_def)
   done
 
 lemma construct_modsib_to_u8_3 [modsib_simp]: "
   construct_modsib_to_u8 3 x y = v1 \<Longrightarrow>
     and (3::8 word) (v1 >> (6::nat)) = 3"
   apply (drule sym [of _ v1])
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def)
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_def)
   done
 
 lemma construct_modsib_to_u8_and_7 [modsib_simp]: "construct_modsib_to_u8 a b c = v1 \<Longrightarrow>
   and (7::8 word) (v1 >> (3::nat)) = and 7 b"
   apply (drule sym [of _ v1])
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_def bitfield_extract_def)
   apply (simp add: bit_simp)
   apply (simp add: and.left_commute and.commute and.assoc and.assoc[symmetric]) (**TODO: here could we find a way to solve it automatically, NP hard? *)
 
@@ -564,7 +558,7 @@ lemma construct_modsib_to_u8_and_7_neq [modsib_simp]: "
   construct_modsib_to_u8 x y (u8_of_ireg r) = v1 \<Longrightarrow>
     and 7 v1 \<noteq> z"
   apply (drule sym [of _ v1])
-  apply (simp add: construct_modsib_to_u8_def bitfield_insert_u8_def unsigned_bitfield_extract_u8_def)
+  apply (simp add: construct_modsib_to_u8_def bitfield_insert_def bitfield_extract_def)
   apply (simp add: bit.conj_disj_distrib)
   apply (simp add: and.left_commute and.assoc[symmetric])
   apply (simp add: and.commute [of _ "(- (57::8 word))"])
@@ -586,7 +580,7 @@ TODO:  if I add this many-declaration,
 the simp can not simple most of those defs
  *)
 declare Let_def [simp]
-declare unsigned_bitfield_extract_u8_def [simp]
+declare bitfield_extract_def [simp]
 declare x64_decode_op_not_rex_def [simp]
 declare x64_decode_op_0x66_def [simp]
 declare x64_decode_op_0x0f_def [simp]
@@ -1757,7 +1751,7 @@ lemma x64_encode_decode_consistency:
     apply ((erule case_optionE), simp)+
     subgoal for v3 v2 v1 v0
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
-      using bitfield_insert_u8_def by simp
+      apply (simp add: bitfield_insert_def)
     done
   subgoal for dst imm
     \<comment> \<open> Prolw_ri \<close> \<comment> \<open> rex <> 0x40 \<close>
@@ -1765,7 +1759,7 @@ lemma x64_encode_decode_consistency:
     apply ((erule case_optionE), simp)+
     subgoal for v4 v3 v2 v1 v0
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
-      using bitfield_insert_u8_def by simp
+      by (simp add: bitfield_insert_def)
     done
 
 
@@ -1799,7 +1793,7 @@ lemma x64_encode_decode_consistency:
     \<comment> \<open> Ppushl_r \<close> 
     apply ((erule case_optionE), simp)+
     subgoal for v0
-      apply (cases dst; simp add: x64_decode_def construct_rex_to_u8_def bitfield_insert_u8_def ireg_of_u8_def)
+      apply (cases dst; simp add: x64_decode_def construct_rex_to_u8_def bitfield_insert_def ireg_of_u8_def)
       done
     done
   subgoal for dst
@@ -1860,7 +1854,7 @@ lemma x64_encode_decode_consistency:
     \<comment> \<open> Ppopl_i \<close> 
     apply ((erule case_optionE), simp)+
     subgoal for v0
-      apply (cases dst; simp add: x64_decode_def construct_rex_to_u8_def bitfield_insert_u8_def ireg_of_u8_def)
+      apply (cases dst; simp add: x64_decode_def construct_rex_to_u8_def bitfield_insert_def ireg_of_u8_def)
       done
     done
 
@@ -1869,7 +1863,7 @@ lemma x64_encode_decode_consistency:
     apply (erule conjE)+
     apply ((erule case_optionE), simp)+
     subgoal for v1 v0
-      apply (cases dst; simp add: x64_decode_def construct_rex_to_u8_def bitfield_insert_u8_def ireg_of_u8_def)
+      apply (cases dst; simp add: x64_decode_def construct_rex_to_u8_def bitfield_insert_def ireg_of_u8_def)
       done
     done
 
@@ -2123,7 +2117,7 @@ lemma x64_encode_decode_consistency:
 declare if_split_asm [split del]
 
 declare Let_def [simp del]
-declare unsigned_bitfield_extract_u8_def [simp del]
+declare bitfield_extract_def [simp del]
 declare x64_decode_op_not_rex_def [simp del]
 declare x64_decode_op_0x66_def [simp del]
 declare x64_decode_op_0x0f_def [simp del]
