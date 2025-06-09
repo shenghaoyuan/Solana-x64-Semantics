@@ -53,7 +53,7 @@ lemma list_in_list_x64_decode_op_0x66_prop: "
   apply (simp add: x64_decode_op_0x66_def)
   apply (cases "nth_error l_bin (Suc n)"; simp)
   apply (frule list_in_list_nth_error [of _ _ _ "Suc n" _], assumption, simp)
-  subgoal for h1 apply (cases "and 15 (h1 >> 4) \<noteq> 4"; simp)
+  subgoal for h1 apply (cases "bitfield_extract 4 4 h1 \<noteq> 4"; simp)
     subgoal
       apply (cases "nth_error l_bin (Suc (Suc n))"; simp) 
       apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc n)" _], assumption, simp add: Let_def)
@@ -64,8 +64,8 @@ lemma list_in_list_x64_decode_op_0x66_prop: "
           done
 
         apply (cases "h1 = 129"; simp)
-        subgoal apply (cases "and 3 (reg >> 6) = 3"; simp)
-          apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) 0)"; simp)
+        subgoal apply (cases "bitfield_extract 6 2 reg = 3"; simp)
+          apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) 0)"; simp)
           subgoal for dst apply (cases "nth_error l_bin (n + 3)"; simp)
             apply (subst add.assoc [of pc n 3])
             apply (frule list_in_list_nth_error [of _ _ _ "n + 3" _], assumption, simp)
@@ -77,7 +77,7 @@ lemma list_in_list_x64_decode_op_0x66_prop: "
           done
 
         apply (cases "h1 = 137"; simp)
-        apply (cases "and 3 (reg >> 6) = 1"; simp)
+        apply (cases "bitfield_extract 6 2 reg = 1"; simp)
         apply (cases "nth_error l_bin (n+3)"; simp)
         apply (subst add.assoc [of pc n 3])
         apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
@@ -95,8 +95,8 @@ lemma list_in_list_x64_decode_op_0x66_prop: "
             apply (frule list_in_list_nth_error [of _ _ _ "n+4" _], assumption, simp)
           done
         apply (cases "op = 129"; simp)
-        subgoal apply (cases "and 3 (reg >> 6) = 3"; simp)
-          apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) (and 1 h1))"; simp)
+        subgoal apply (cases "bitfield_extract 6 2 reg = 3"; simp)
+          apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) (bitfield_extract 0 (Suc 0) h1))"; simp)
           subgoal for dst apply (cases "nth_error l_bin (n+4)"; simp)
             apply (subst add.assoc [of pc n 4])
             apply (frule list_in_list_nth_error [of _ _ _ "n+4" _], assumption, simp)
@@ -107,7 +107,7 @@ lemma list_in_list_x64_decode_op_0x66_prop: "
             done
           done
         apply (cases "op = 137"; simp)
-        apply (cases "and 3 (reg >> 6) = 1"; simp)
+        apply (cases "bitfield_extract 6 2 reg = 1"; simp)
         apply (cases "nth_error l_bin (n+4)"; simp)
         apply (subst add.assoc [of pc n 4])
         apply (frule list_in_list_nth_error [of _ _ _ "n+4" _], assumption, simp)
@@ -122,14 +122,14 @@ lemma list_in_list_x64_decode_op_0x0f_prop: "list_in_list l_bin pc l \<Longright
   apply (cases "nth_error l_bin (Suc n)"; simp)
   apply (frule list_in_list_nth_error [of _ _ _ "Suc n" _], assumption, simp)
   subgoal for op apply (cases "op = 49"; simp)
-    apply (cases "and 31 (op >> 3) = 25"; simp)
-    apply (cases "and 15 (op >> 4) = 4"; simp)
+    apply (cases "bitfield_extract 3 5 op = 25"; simp)
+    apply (cases "bitfield_extract 4 4 op = 4"; simp)
     subgoal
       apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
       apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc n)" _], assumption, simp add: Let_def)
       done
 
-    apply (cases "and 15 (op >> 4) = 8"; simp)
+    apply (cases "bitfield_extract 4 4 op = 8"; simp)
     apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
     apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc n)" _], assumption, simp add: Let_def)
     subgoal for i1 apply (cases "nth_error l_bin (n+3)"; simp)
@@ -146,8 +146,8 @@ lemma list_in_list_x64_decode_op_0x0f_prop: "list_in_list l_bin pc l \<Longright
 lemma list_in_list_x64_decode_op_not_rex_prop: "list_in_list l_bin pc l \<Longrightarrow>
     x64_decode_op_not_rex h n l_bin = Some v \<Longrightarrow> x64_decode_op_not_rex h (pc+n) l = Some v"
   apply (simp add: x64_decode_op_not_rex_def)
-  apply (cases "and 31 (h >> 3) = 10"; simp)
-  subgoal apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 h) 0)"; simp)
+  apply (cases "bitfield_extract 3 5 h = 10"; simp)
+  subgoal apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 h) 0)"; simp)
     subgoal for dst apply (cases "nth_error l (Suc (pc + n))", fastforce, simp)
       subgoal for i1 apply (cases "nth_error l (Suc (Suc (pc + n)))", fastforce, simp)
         subgoal for i2 apply (cases "nth_error l (pc + n + 3)", fastforce, simp)
@@ -160,8 +160,8 @@ lemma list_in_list_x64_decode_op_not_rex_prop: "list_in_list l_bin pc l \<Longri
       done
     done
 
-  apply (cases "and 31 (h >> 3) = 11"; simp)
-  subgoal apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 h) 0)"; simp)
+  apply (cases "bitfield_extract 3 5 h = 11"; simp)
+  subgoal apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 h) 0)"; simp)
     subgoal for dst apply (cases "nth_error l (Suc (pc + n))", fastforce, simp)
       subgoal for i1 apply (cases "nth_error l (Suc (Suc (pc + n)))", fastforce, simp)
         subgoal for i2 apply (cases "nth_error l (pc + n + 3)", fastforce, simp)
@@ -204,14 +204,14 @@ lemma list_in_list_x64_decode_op_not_rex_prop: "list_in_list l_bin pc l \<Longri
     apply (frule list_in_list_nth_error [of _ _ _ "Suc n" _], assumption, simp)
     subgoal for reg apply (cases "h = 137"; simp)
       subgoal apply (simp add: Let_def)
-        apply (cases "and 3 (reg >> 6) = 3"; simp)
-        apply (cases "and 3 (reg >> 6) = 1"; simp)
+        apply (cases "bitfield_extract 6 2 reg = 3"; simp)
+        apply (cases "bitfield_extract 6 2 reg = 1"; simp)
         subgoal
           apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
           apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc n))" _], assumption, simp)
           done
 
-        apply (cases "and 3 (reg >> 6) = 2"; simp)
+        apply (cases "bitfield_extract 6 2 reg = 2"; simp)
         apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
         apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc n))" _], assumption, simp)
         subgoal for i2 apply (cases "nth_error l_bin (n+3)"; simp)
@@ -228,12 +228,12 @@ lemma list_in_list_x64_decode_op_not_rex_prop: "list_in_list l_bin pc l \<Longri
         apply (cases "h = 1"; simp)
         apply (cases "h = 247"; simp)
         subgoal apply (simp add: Let_def)
-          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 3"; simp)
-          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 4"; simp)
-          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 5"; simp)
-          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 6"; simp)
-          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 7"; simp)
-          apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 0"; simp)
+          apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 3"; simp)
+          apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 4"; simp)
+          apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 5"; simp)
+          apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 6"; simp)
+          apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 7"; simp)
+          apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 0"; simp)
           apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
           apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc n))" _], assumption, simp)
           subgoal for i2 apply (cases "nth_error l_bin (n+3)"; simp)
@@ -275,8 +275,8 @@ lemma list_in_list_x64_decode_op_not_rex_prop: "list_in_list l_bin pc l \<Longri
           apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc n))" _], assumption, simp)
           done
         apply (cases "h = 129"; simp)
-        apply (cases "and 3 (reg >> 6) = 3"; simp)
-        apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) 0)"; simp)
+        apply (cases "bitfield_extract 6 2 reg = 3"; simp)
+        apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) 0)"; simp)
         subgoal for dst apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
           apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc n))" _], assumption, simp)
         subgoal for i2 apply (cases "nth_error l_bin (n+3)"; simp)
@@ -292,18 +292,18 @@ lemma list_in_list_x64_decode_op_not_rex_prop: "list_in_list l_bin pc l \<Longri
 
         apply (cases "h = 136"; simp)
         subgoal
-          apply (cases "and 3 (reg >> 6) = 1"; simp)
+          apply (cases "bitfield_extract 6 2 reg = 1"; simp)
           apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
           apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc n))" _], assumption, simp)
           done
         apply (cases "h = 139"; simp add: Let_def)
-        apply (cases "and 3 (reg >> 6) = 1"; simp)
+        apply (cases "bitfield_extract 6 2 reg = 1"; simp)
         subgoal
           apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
           apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc n))" _], assumption, simp)
           done
 
-        apply (cases "and 3 (reg >> 6) = 2"; simp)
+        apply (cases "bitfield_extract 6 2 reg = 2"; simp)
         apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
         apply (frule list_in_list_nth_error [of _ _ _ "(Suc (Suc n))" _], assumption, simp)
         subgoal for i2 apply (cases "nth_error l_bin (n+3)"; simp)
@@ -389,16 +389,16 @@ lemma list_in_list_x64_decode:
     subgoal using list_in_list_x64_decode_op_0x66_prop by blast
     apply (cases "h = 15"; simp)
     subgoal using list_in_list_x64_decode_op_0x0f_prop by blast
-    apply (cases "and 15 (h >> 4) \<noteq> 4"; simp)
+    apply (cases "bitfield_extract 4 4 h \<noteq> 4"; simp)
     subgoal using list_in_list_x64_decode_op_not_rex_prop by blast
-    apply (cases "and 15 h = 0"; simp)
+    apply (cases "bitfield_extract 0 4 h = 0"; simp)
     apply (cases "nth_error l_bin (Suc n)"; simp)
     apply (frule list_in_list_nth_error [of _ _ _ "Suc n" _], assumption, simp)
     subgoal for op
       apply (cases "op = 153"; simp)
-      apply (cases "and 31 (op >> 3) = 10"; simp)
-      apply (cases "and 31 (op >> 3) = 11"; simp)
-      apply (cases "and 31 (op >> 3) = 23"; simp)
+      apply (cases "bitfield_extract 3 5 op = 10"; simp)
+      apply (cases "bitfield_extract 3 5 op = 11"; simp)
+      apply (cases "bitfield_extract 3 5 op = 23"; simp)
 
       subgoal
         apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
@@ -445,8 +445,8 @@ lemma list_in_list_x64_decode:
         subgoal
           apply (cases "nth_error l_bin (Suc (Suc n))"; simp)
           apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc n)" _], assumption, simp)
-          subgoal for i1 apply (cases "and 31 (i1 >> 3) = 25"; simp)
-            apply (cases "and 15 (i1 >> 4) = 4"; simp)
+          subgoal for i1 apply (cases "bitfield_extract 3 5 i1 = 25"; simp)
+            apply (cases "bitfield_extract 4 4 i1 = 4"; simp)
             apply (cases "nth_error l_bin (n+3)"; simp)
             apply (subst add.assoc [of pc n 3])
             apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
@@ -456,16 +456,16 @@ lemma list_in_list_x64_decode:
         apply (frule list_in_list_nth_error [of _ _ _ "Suc (Suc n)" _], assumption, simp)
         subgoal for reg apply (cases "op = 137"; simp)
           subgoal apply (simp add: Let_def) 
-            apply (cases "and 3 (reg >> 6) = 3"; simp)
-            apply (cases "and 3 (reg >> 6) = 1"; simp)
+            apply (cases "bitfield_extract 6 2 reg = 3"; simp)
+            apply (cases "bitfield_extract 6 2 reg = 1"; simp)
               subgoal
                 apply (cases "nth_error l_bin (n+3)"; simp)
                 apply (subst add.assoc [of pc n 3])
                 apply (subst add.assoc [of pc n 3])
                 by (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
 
-            apply (cases "and 3 (reg >> 6) = 2"; simp)
-            apply (cases "and 7 reg \<noteq> 4"; simp)
+            apply (cases "bitfield_extract 6 2 reg = 2"; simp)
+            apply (cases "bitfield_extract 0 3 reg \<noteq> 4"; simp)
               subgoal
                 apply (cases "nth_error l_bin (n+3)"; simp)
                 apply (subst add.assoc [of pc n 3])
@@ -484,8 +484,8 @@ lemma list_in_list_x64_decode:
                   apply (subst add.assoc [of pc n 6])
                 apply (frule list_in_list_nth_error [of _ _ _ "n+6" _], assumption, simp)
                 subgoal for d4 apply (cases "u32_of_u8_list [d1, d2, d3, d4]"; simp)
-                subgoal for dis apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 (reg >> 3)) (and 1 (h >> 2)))"; simp)
-                subgoal for src apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) (and 1 h))"; simp)
+                subgoal for dis apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 3 3 reg) (bitfield_extract 2 (Suc 0) h))"; simp)
+                subgoal for src apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) (bitfield_extract 0 (Suc 0) h))"; simp)
                 subgoal for rb 
                   by argo
                 done done done done done done done
@@ -510,9 +510,9 @@ lemma list_in_list_x64_decode:
             apply (cases "op = 135"; simp)
             subgoal 
               apply (simp add: Let_def)
-              apply (cases "and 3 (reg >> 6) = 3"; simp)
-              apply (cases "and 3 (reg >> 6) = 2"; simp)
-              apply (cases " and 7 reg = 4"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 3"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 2"; simp)
+              apply (cases " bitfield_extract 0 3 reg = 4"; simp)
               apply (cases "nth_error l_bin (n+3)"; simp)
               apply (subst add.assoc [of pc n 3])
               apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
@@ -537,12 +537,12 @@ lemma list_in_list_x64_decode:
             subgoal
               apply (simp add: Let_def)
 
-              apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 3"; simp)
-              apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 4"; simp)
-              apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 5"; simp)
-              apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 6"; simp)
-              apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 7"; simp)
-              apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 0"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 3"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 4"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 5"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 6"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 7"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 0"; simp)
               apply (cases "nth_error l_bin (n+3)"; simp)
               apply (subst add.assoc [of pc n 3])
               apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
@@ -567,8 +567,8 @@ lemma list_in_list_x64_decode:
             subgoal
               apply (simp add: Let_def)
 
-              apply (cases "and 3 (reg >> 6) = 3 \<and> and 7 (reg >> 3) = 2"; simp)
-              apply (cases "and 3 (reg >> 6) = 2 \<and> and 7 reg = 4"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 3 \<and> bitfield_extract 3 3 reg = 2"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 2 \<and> bitfield_extract 0 3 reg = 4"; simp)
               apply (cases "nth_error l_bin (n+3)"; simp)
               apply (subst add.assoc [of pc n 3])
               apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
@@ -590,7 +590,7 @@ lemma list_in_list_x64_decode:
             subgoal
               apply (simp only: Let_def)
 
-              apply (cases "and 3 (reg >> 6) = 1"; simp)
+              apply (cases "bitfield_extract 6 2 reg = 1"; simp)
               subgoal
                 apply (cases "nth_error l_bin (4+n)"; simp)
                 subgoal for i1 apply (frule list_in_list_nth_error [of _ _ _ "4 + n" i1]) apply blast
@@ -607,16 +607,16 @@ lemma list_in_list_x64_decode:
                   apply (cases "nth_error l_bin (7+n)"; simp)
                   subgoal for i4 apply (frule list_in_list_nth_error [of _ _ _ "7 + n" i4]) apply blast
                   apply (rule subst [of "pc + (7 + n)" "7 + (pc + n)"]; simp)
-                  apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) (and 1 h))"; simp)
+                  apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) (bitfield_extract 0 (Suc 0) h))"; simp)
                   subgoal for dst apply (cases "u32_of_u8_list [i1, i2, i3, i4]"; simp)
-                  subgoal for imm apply (cases "and 7 (reg >> 3) = 0 \<and> and 1 (h >> 2) = 0 \<and> and 1 (h >> Suc 0) = 0"; simp)
-                    apply (cases "and 1 (h >> 3) = 1"; simp)
+                  subgoal for imm apply (cases "bitfield_extract 3 3 reg = 0 \<and> bitfield_extract 2 (Suc 0) h = 0  \<and> bitfield_extract (Suc 0) (Suc 0) h = 0"; simp)
+                    apply (cases "bitfield_extract 3 (Suc 0) h = 1"; simp)
                     apply (cases "nth_error l_bin (n+3)"; simp)
                     apply (subst add.assoc [of pc n 3])
                     apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
                     done done done done done done done
 
-                  apply (cases "and 3 (reg >> 6) = 2"; simp)
+                  apply (cases "bitfield_extract 6 2 reg = 2"; simp)
                   subgoal
                     apply (cases "nth_error l_bin (7+n)"; simp)
                     apply (frule list_in_list_nth_error [of _ _ _ "7+n" _], assumption)
@@ -635,9 +635,9 @@ lemma list_in_list_x64_decode:
                       subgoal for i4 apply (frule list_in_list_nth_error [of _ _ _ "10+n" i4]) apply blast
                         apply (rule subst [of "pc + (10 + n)" "10 + (pc + n)"]; simp)
 
-                        apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) (and 1 h))"; simp)
+                        apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) (bitfield_extract 0 (Suc 0) h))"; simp)
                         subgoal for dst apply (cases "u32_of_u8_list [i1, i2, i3, i4]"; simp)
-                          apply (cases "and 7 (reg >> 3) = 0 \<and> and 1 (h >> 2) = 0 \<and> and 1 (h >> Suc 0) = 0"; simp)
+                          apply (cases "bitfield_extract 3 3 reg = 0 \<and> bitfield_extract 2 (Suc 0) h = 0  \<and> bitfield_extract (Suc 0) (Suc 0) h = 0"; simp)
 
                           apply (cases "nth_error l_bin (n+3)"; simp)
                           apply (subst add.assoc [of pc n 3])
@@ -665,11 +665,11 @@ lemma list_in_list_x64_decode:
                   subgoal for i3 apply (cases "nth_error l_bin (n+6)"; simp)
                   apply (frule list_in_list_nth_error [of _ _ _ "n+6" _], assumption)
                     apply (subst add.assoc [of pc n 6], simp)
-                  subgoal for i4 apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) (and 1 h))"; simp)
+                  subgoal for i4 apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) (bitfield_extract 0 (Suc 0) h))"; simp)
                   subgoal for dst apply (cases "u32_of_u8_list [i1, i2, i3, i4]"; simp)
-                  subgoal for imm apply (cases "and 7 (reg >> 3) = 0 \<and> and 1 (h >> 2) = 0 \<and> and 1 (h >> Suc 0) = 0"; simp)
-                  apply (cases "and 3 (reg >> 6) = 3"; simp)
-                  apply (cases "and 1 (h >> 3) = 0"; simp)
+                  subgoal for imm apply (cases "bitfield_extract 3 3 reg = 0 \<and> bitfield_extract 2 (Suc 0) h = 0  \<and> bitfield_extract (Suc 0) (Suc 0) h = 0"; simp)
+                  apply (cases "bitfield_extract 6 2 reg = 3"; simp)
+                  apply (cases "bitfield_extract 3 (Suc 0) h = 0"; simp)
                     done done done done done done done
 
                   apply (cases "op = 129"; simp)
@@ -686,7 +686,7 @@ lemma list_in_list_x64_decode:
 
                   apply (cases "op = 136"; simp)
                   subgoal
-                    apply (cases "and 3 (reg >> 6) = 1 \<and> and 1 (h >> Suc 0) = 0 \<and> and 1 (h >> 3) = 0"; simp)
+                    apply (cases "bitfield_extract 6 2 reg = 1 \<and> bitfield_extract (Suc 0) (Suc 0) h = 0 \<and> bitfield_extract 3 (Suc 0) h = 0"; simp)
                     apply (cases "nth_error l_bin (n+3)"; simp)
                     apply (subst add.assoc [of pc n 3])
                     apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
@@ -695,19 +695,19 @@ lemma list_in_list_x64_decode:
                   apply (cases "op = 139"; simp)
                   subgoal
                     apply (simp only: Let_def)
-                    apply (cases "and 3 (reg >> 6) = 1 \<and> and 1 (h >> Suc 0) = 0"; simp)
+                    apply (cases "bitfield_extract 6 2 reg = 1 \<and> bitfield_extract (Suc 0) (Suc 0) h = 0"; simp)
                     subgoal
                       apply (cases "nth_error l_bin (n+3)"; simp)
                       apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption)
                       apply (subst add.assoc [of pc n 3], simp)
                       apply (subst add.assoc [of pc n 3], simp)
-                      subgoal for dis apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 (reg >> 3)) (and 1 (h >> 2)))"; simp)
-                        subgoal for src apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) (and 1 h))"; simp)
+                      subgoal for dis apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 3 3 reg) (bitfield_extract 2 (Suc 0) h))"; simp)
+                        subgoal for src apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) (bitfield_extract 0 (Suc 0) h))"; simp)
                           subgoal for dst by force 
                     done done done
 
-                  apply (cases "and 3 (reg >> 6) = 2"; simp)
-                  apply (cases "and 7 reg \<noteq> 4"; simp)
+                  apply (cases "bitfield_extract 6 2 reg = 2"; simp)
+                  apply (cases "bitfield_extract 0 3 reg \<noteq> 4"; simp)
                   subgoal
                     apply (cases "nth_error l_bin (n+3)"; simp)
                     apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption)
@@ -726,9 +726,9 @@ lemma list_in_list_x64_decode:
                     apply (subst add.assoc [of pc n 6], simp)
                     apply (subst add.assoc [of pc n 6], simp)
                     subgoal for d1 d2 d3 d4 apply (cases "u32_of_u8_list [d1, d2, d3, d4]"; simp)
-                    subgoal for dis apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 (reg >> 3)) (and 1 (h >> 2)))"; simp)
-                    subgoal for src apply (cases "ireg_of_u8 (bitfield_insert_u8 3 (Suc 0) (and 7 reg) (and 1 h))"; simp)
-                    subgoal for dst apply (cases "and 1 (h >> Suc 0) = 0"; simp)
+                    subgoal for dis apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 3 3 reg) (bitfield_extract 2 (Suc 0) h))"; simp)
+                    subgoal for src apply (cases "ireg_of_u8 (bitfield_insert 3 (Suc 0) (bitfield_extract 0 3 reg) (bitfield_extract 0 (Suc 0) h))"; simp)
+                    subgoal for dst apply (cases "bitfield_extract (Suc 0) (Suc 0) h = 0"; simp)
                       by argo
                     done done done done
 
@@ -752,13 +752,13 @@ lemma list_in_list_x64_decode:
                 apply (cases "op = 141"; simp)
                 subgoal
                   apply (simp add: Let_def)
-                  apply (cases "and 3 (reg >> 6) = 1"; simp)
+                  apply (cases "bitfield_extract 6 2 reg = 1"; simp)
                   subgoal
                     apply (cases "nth_error l_bin (n+3)"; simp)
                     apply (subst add.assoc [of pc n 3])
                     apply (frule list_in_list_nth_error [of _ _ _ "n+3" _], assumption, simp)
                     done
-                  apply (cases "and 3 (reg >> 6) = 2"; simp)
+                  apply (cases "bitfield_extract 6 2 reg = 2"; simp)
                   subgoal
                     apply (cases "nth_error l_bin (n+3)"; simp)
                     apply (subst add.assoc [of pc n 3])

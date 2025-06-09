@@ -1752,6 +1752,7 @@ lemma x64_encode_decode_consistency:
     subgoal for v3 v2 v1 v0
       apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
       apply (simp add: bitfield_insert_def)
+      done
     done
   subgoal for dst imm
     \<comment> \<open> Prolw_ri \<close> \<comment> \<open> rex <> 0x40 \<close>
