@@ -539,7 +539,7 @@ definition x64_decode :: "nat \<Rightarrow> x64_bin \<Rightarrow> (nat * instruc
                 Some (6, Ppushl_i imm)
               else None ))))
       else if op = 0x0f then 
-        case nth_error l_bin (pc+2) of None \<Rightarrow> None | Some op1 \<Rightarrow>
+        case nth_error l_bin (pc+2) of None \<Rightarrow> None | Some op1 \<Rightarrow> (
       \<comment> \<open> R8.4 [rex + escape + opcode] \<close>
       \<comment> \<open> P2877 `BSWAP: register `   -> `0000 1111 : 1100 1 reg` \<close>
       \<comment> \<open> P2877 `BSWAP: qwordregister `   -> `0100 100B 0000 1111 : 1100 1 reg` \<close>
@@ -573,7 +573,7 @@ definition x64_decode :: "nat \<Rightarrow> x64_bin \<Rightarrow> (nat * instruc
                   Some (4, Pcmovq t src dst)
                 else None)))
             else None
-        else None
+        else None)
       else (
         case nth_error l_bin (pc+2) of None \<Rightarrow> None | Some reg \<Rightarrow>
         let modrm = bitfield_extract 6 2 reg in

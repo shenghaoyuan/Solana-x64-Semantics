@@ -7,6 +7,7 @@ begin
 definition nth_error :: "'a list \<Rightarrow> nat \<Rightarrow> 'a option" where
 "nth_error l a = (if length l \<le> a then None else Some (l!a))"
 
+
 lemma case_option_eq_E:
   assumes c: "(case x of None \<Rightarrow> P | Some y \<Rightarrow> Q y) = Some z"
   obtains
