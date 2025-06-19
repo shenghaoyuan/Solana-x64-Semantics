@@ -819,11 +819,11 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
           let (rop::u8) = construct_modsib_to_u8 0b10 (u8_of_ireg rd) (u8_of_ireg rb) in
               Some ([ rex, op, rop ] @ (u8_list_of_u32 dis)))
       | _ \<Rightarrow> None)|
-  \<comment> \<open> P2886 `RDTSC – Read Time-Stamp Counter`   -> ` 0000 1111 0011 0001 ` \<close>
+  \<comment> \<open> P2886 `RDTSC – Read Time-Stamp Counter`   -> ` 0000 1111 0011 0001 ` 
   Prdtsc \<Rightarrow>
     let (opes::u8) = 0x0f in
     let (op  ::u8) = 0x31 in
-      Some [opes,op] |
+      Some [opes,op] |\<close>
   \<comment> \<open> P2885 `PUSH: qwordregister (alternate encoding)`   -> ` 0100 W00BS : 0101 0 reg64` \<close>
   Ppushl_r  r1 \<Rightarrow>
     let (rex::u8) = (construct_rex_to_u8    \<comment> \<open> `000B` \<close>
@@ -1024,6 +1024,8 @@ fun x64_assemble :: "x64_asm \<Rightarrow> x64_bin option" where
 )"
 
 value "x64_encode (Pmovq_rr RAX RBX)"
+value "x64_encode (Paddq_rr RAX RBX)"
+value "x64_encode (Paddl_rr RDI RCX)"
 
 (*
 definition x64_encode :: "instruction \<Rightarrow> x64_bin \<Rightarrow> x64_bin option" where

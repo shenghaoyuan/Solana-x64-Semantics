@@ -101,11 +101,11 @@ definition x64_decode_op_0x66 :: "nat \<Rightarrow> x64_bin \<Rightarrow> (nat *
 definition x64_decode_op_0x0f :: "nat \<Rightarrow> x64_bin \<Rightarrow> (nat * instruction) option" where
 "x64_decode_op_0x0f pc l_bin = (
   case nth_error l_bin (pc+1) of None \<Rightarrow> None | Some op \<Rightarrow>
-    \<comment> \<open> R8.1 [escape + opcode] \<close>         
+    \<comment> \<open> R8.1 [escape + opcode]          
     if op = 0x31 then 
-      Some (2, Prdtsc)
+      Some (2, Prdtsc)\<close>
     \<comment> \<open> P2877 `BSWAP: register `   -> `0000 1111 : 1100 1 reg` \<close>
-    else if bitfield_extract 3 5 op = 0b11001 then
+    if bitfield_extract 3 5 op = 0b11001 then
       let reg2 = bitfield_extract 0 3 op in
       let dst  = bitfield_insert 3 1 reg2 0 in
         case ireg_of_u8 dst of None \<Rightarrow> None | Some dst \<Rightarrow> (

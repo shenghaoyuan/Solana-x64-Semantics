@@ -74,9 +74,9 @@ definition ireg_of_u8 ::"u8 \<Rightarrow> ireg option" where
 
 text \<open> skip float registers, as Solana rBPF doesn't deal with float \<close>
 
-datatype crbit = ZF | CF | PF | SF | OF
+datatype crbit = ZF | CF | PF | SF | OF  
 
-datatype preg = PC | IR ireg | CR crbit | TSC
+datatype preg = PC | IR ireg | CR crbit   (* | TSC*)
 
 abbreviation "RIP \<equiv> PC"  \<comment> \<open> the RIP register in x86-64 (x64) architecture is the equivalent of the program counter (PC) in many other architectures.  \<close>
   
@@ -248,7 +248,7 @@ datatype instruction =
   | Pcall_r ireg
   | Pcall_i u32
   | Pret
-  | Prdtsc
+  (*| Prdtsc *)
   | Pnop
   | P
 
