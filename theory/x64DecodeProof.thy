@@ -2098,15 +2098,6 @@ lemma x64_encode_decode_consistency:
     done
 
   subgoal 
-    \<comment> \<open> Prdtsc \<close>
-    apply (erule conjE)+
-    apply ((erule case_optionE), simp)+
-    subgoal for v1 v0
-      apply (simp add: x64_decode_def rex_simp modsib_simp nat_simp add.commute)
-      done
-    done
-
-  subgoal 
     \<comment> \<open> Pnop \<close>
     apply ((erule case_optionE), simp)+
     subgoal for v0

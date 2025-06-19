@@ -146,10 +146,10 @@ definition storev :: "memory_chunk \<Rightarrow> mem \<Rightarrow> addr_type \<R
 definition vlong_of_memory_chunk :: "memory_chunk \<Rightarrow> val" where
 "vlong_of_memory_chunk chunk = (
   case chunk of
-  M8  \<Rightarrow> Vlong 8 |
-  M16 \<Rightarrow> Vlong 16 |
-  M32 \<Rightarrow> Vlong 32 |
-  M64 \<Rightarrow> Vlong 64
+  M8  \<Rightarrow> Vlong 1 |
+  M16 \<Rightarrow> Vlong 2 |
+  M32 \<Rightarrow> Vlong 4 |
+  M64 \<Rightarrow> Vlong 8
 )"
 
 lemma sub_8_eq: "k \<le> n \<Longrightarrow> (n::nat) < k+8 \<Longrightarrow> n-k < 8" by simp
