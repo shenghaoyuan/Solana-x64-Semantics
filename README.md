@@ -50,3 +50,9 @@ sudo apt-get install libxi6 libxtst6 libxrender1 fontconfig
 
 # x64 Reference
 As Solana rBPF has a x86_64 JIT compiler which involves of ISA instructions encoding formats, we refer to [x64 Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200), and if you read the comment with `P123` in the isabelle/hol file, which means, the source text description could be found in the x64 Manual `Page 123`. Good Luck~
+
+
+
+### Update
+
+**June 19, 2025**: We have removed the `rdtsc` instruction, as it was only present in dead code.
