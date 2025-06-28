@@ -1027,7 +1027,7 @@ lemma x64_encode_decode_consistency:
   
 
   subgoal for dst src
-    \<comment> \<open> Pmovsq_rr \<close>
+    \<comment> \<open> Pmovxd_rr \<close>
     apply (erule conjE)+
     apply ((erule case_optionE), simp)+
     subgoal for v2 v1 v0

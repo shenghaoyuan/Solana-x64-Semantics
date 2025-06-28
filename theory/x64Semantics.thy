@@ -4,7 +4,8 @@ theory x64Semantics
 imports
   Main
   rBPFCommType Val Mem x64Syntax
-  x64Disassembler                  
+  x64Disassembler  
+  x64RegmapAux
 begin
 
 text \<open> define our x64 semantics in Isabelle/HOL, following the style of CompCert x64 semantics: https://github.com/AbsInt/CompCert/blob/master/x86/Asm.v  \<close>
@@ -82,7 +83,7 @@ definition eval_testcond :: "testcond \<Rightarrow> regset \<Rightarrow> bool op
                                     _ \<Rightarrow> None) | _ \<Rightarrow> None) |
   Cond_ae \<Rightarrow> (case rs (CR CF) of Vint n \<Rightarrow> Some (n = 0) | _ \<Rightarrow> None) |      
   Cond_a  \<Rightarrow> (case rs (CR CF) of Vint c \<Rightarrow> (
-                case rs (CR ZF) of  Vint z \<Rightarrow> Some (c = 0 \<or> z = 0) |
+                case rs (CR ZF) of  Vint z \<Rightarrow> Some (c = 0 \<and> z = 0) |
                                     _ \<Rightarrow> None) | _ \<Rightarrow> None) |
   Cond_l  \<Rightarrow> (case rs (CR OF) of Vint n \<Rightarrow> (
                 case rs (CR SF) of  Vint s \<Rightarrow> Some ((xor n s) = 1) |
@@ -209,7 +210,7 @@ definition testVal64 :: "testcond \<Rightarrow> regset \<Rightarrow> val \<Right
       let v = (case eval_testcond t rs of
         Some b \<Rightarrow> if b then (Vlong n2) else (Vlong n1) |
         None   \<Rightarrow> Vundef ) in
-      let v1 =  (case v of Vint v1 \<Rightarrow> (Vint v1)| _ \<Rightarrow> Vundef) in
+      let v1 =  (case v of Vlong v1 \<Rightarrow> (Vlong v1)| _ \<Rightarrow> Vundef) in
       v1
     | _ \<Rightarrow> Vundef) |
     _ \<Rightarrow> Vundef
@@ -240,7 +241,7 @@ definition exec_instr :: "instruction \<Rightarrow> u64 \<Rightarrow> regset \<R
                         None \<Rightarrow> Stuck| 
                         Some m' \<Rightarrow> Next (nextinstr_nf sz rs) m'))) |  \<comment> \<open>store imm32 to mem32/64 \<close>
   \<comment> \<open> Moves with conversion \<close>
-  Pmovsq_rr rd r1 \<Rightarrow> Next (nextinstr    sz (rs#(IR rd) <- (Val.longofintu(rs (IR r1))))) m |
+  Pmovsxd_rr rd r1 \<Rightarrow> Next (nextinstr    sz (rs#(IR rd) <- (Val.longofints(rs (IR r1))))) m |
   Pcdq            \<Rightarrow> Next (nextinstr    sz (rs#(IR RDX)<- (Val.signex32(rs (IR RAX))))) m | \<comment> \<open>sign_extend_eax_edx \<close>
   Pcqo            \<Rightarrow> Next (nextinstr    sz (rs#(IR RDX)<- (Val.signex64(rs (IR RAX))))) m | \<comment> \<open>sign_extend_rax_rdx \<close>
   \<comment> \<open> Integer arithmetic \<close>
@@ -270,23 +271,23 @@ definition exec_instr :: "instruction \<Rightarrow> u64 \<Rightarrow> regset \<R
   Pmull_r   r1    \<Rightarrow> let rs1 = (rs#(IR RAX)<- (Val.mul32  (rs(IR RAX)) (rs (IR r1)))) in
                      Next (nextinstr_nf sz (rs1#(IR RDX)<-(Val.mulhu32 (rs (IR RAX))(rs (IR r1))))) m |
   Pmulq_r   r1    \<Rightarrow> let rs1 = (rs#(IR RAX)<- (Val.mul64 (rs(IR RAX)) (rs (IR r1)))) in
-                     Next (nextinstr_nf sz (rs1#(IR RDX)<-(Val.mulhu32 (rs (IR RAX))(rs (IR r1))))) m |
+                     Next (nextinstr_nf sz (rs1#(IR RDX)<-(Val.mulhu64 (rs (IR RAX))(rs (IR r1))))) m |
   Pimull_r  r1    \<Rightarrow> let rs1 = (rs#(IR RAX)<- (Val.mul32  (rs(IR RAX)) (rs (IR r1)))) in
                      Next (nextinstr_nf sz (rs1#(IR RDX)<-(Val.mulhs32 (rs (IR RAX))(rs (IR r1))))) m |
   Pimulq_r  r1    \<Rightarrow> let rs1 = (rs#(IR RAX)<- (Val.mul64 (rs(IR RAX)) (rs (IR r1)))) in
-                     Next (nextinstr_nf sz (rs1#(IR RDX)<-(Val.mulhs32 (rs (IR RAX))(rs (IR r1))))) m |
+                     Next (nextinstr_nf sz (rs1#(IR RDX)<-(Val.mulhs64 (rs (IR RAX))(rs (IR r1))))) m |
   Pdivl_r   r1    \<Rightarrow> (case Val.divmod32u (rs (IR RDX)) (rs (IR RAX)) (rs (IR r1)) of Some (Vint q, Vint r) \<Rightarrow> (
                          let rs1= (rs#(IR RAX) <- (Vint q)) in 
-                     Next (nextinstr_nf sz (rs#(IR RDX) <- (Vint r)) ) m) | _  \<Rightarrow> Stuck ) |
-  Pdivq_r   r1    \<Rightarrow> (case Val.divmod64u (rs (IR RDX)) (rs (IR RAX)) (rs (IR r1)) of Some (Vint q, Vint r) \<Rightarrow> (
+                     Next (nextinstr_nf sz (rs1#(IR RDX) <- (Vint r)) ) m) | _  \<Rightarrow> Stuck ) |
+  Pdivq_r   r1    \<Rightarrow> (case Val.divmod64u (rs (IR RDX)) (rs (IR RAX)) (rs (IR r1)) of Some (Vlong q, Vlong r) \<Rightarrow> (
+                         let rs1= (rs#(IR RAX) <- (Vlong q)) in 
+                     Next (nextinstr_nf sz (rs1#(IR RDX) <- (Vlong r)) ) m) | _  \<Rightarrow> Stuck ) |
+  Pidivl_r  r1    \<Rightarrow> (case Val.divmod32s (rs (IR RDX)) (rs (IR RAX)) (rs (IR r1)) of Some (Vint q, Vint r) \<Rightarrow> (
                          let rs1= (rs#(IR RAX) <- (Vint q)) in 
-                     Next (nextinstr_nf sz (rs#(IR RDX) <- (Vint r)) ) m) | _  \<Rightarrow> Stuck ) |
-  Pidivl_r  r1    \<Rightarrow> (case Val.divmod64u (rs (IR RDX)) (rs (IR RAX)) (rs (IR r1)) of Some (Vint q, Vint r) \<Rightarrow> (
-                         let rs1= (rs#(IR RAX) <- (Vint q)) in 
-                     Next (nextinstr_nf sz (rs#(IR RDX) <- (Vint r)) ) m) | _  \<Rightarrow> Stuck ) |
-  Pidivq_r  r1    \<Rightarrow> (case Val.divmod64u (rs (IR RDX)) (rs (IR RAX)) (rs (IR r1)) of Some (Vint q, Vint r) \<Rightarrow> (
-                         let rs1= (rs#(IR RAX) <- (Vint q)) in 
-                     Next (nextinstr_nf sz (rs#(IR RDX) <- (Vint r)) ) m) | _  \<Rightarrow> Stuck ) |
+                     Next (nextinstr_nf sz (rs1#(IR RDX) <- (Vint r)) ) m) | _  \<Rightarrow> Stuck ) |
+  Pidivq_r  r1    \<Rightarrow> (case Val.divmod64s (rs (IR RDX)) (rs (IR RAX)) (rs (IR r1)) of Some (Vlong q, Vlong r) \<Rightarrow> (
+                         let rs1= (rs#(IR RAX) <- (Vlong q)) in 
+                     Next (nextinstr_nf sz (rs1#(IR RDX) <- (Vlong r)) ) m) | _  \<Rightarrow> Stuck ) |
   Pshll_ri  rd n  \<Rightarrow> Next (nextinstr_nf sz (rs#(IR rd) <- (Val.shl32  (rs (IR rd)) (Vbyte n)))) m |  \<comment>\<open> imm8 \<close>
   Pshlq_ri  rd n  \<Rightarrow> Next (nextinstr_nf sz (rs#(IR rd) <- (Val.shl64  (rs (IR rd)) (Vbyte n)))) m |  \<comment>\<open> imm8 \<close>
   Pshll_r   rd    \<Rightarrow> Next (nextinstr_nf sz (rs#(IR rd) <- (Val.shl32  (rs (IR rd)) (rs(IR RCX))))) m |
@@ -335,7 +336,11 @@ definition exec_instr :: "instruction \<Rightarrow> u64 \<Rightarrow> regset \<R
   _               \<Rightarrow> Stuck
 )"
 
+
+
   \<comment> \<open> Validation \<close>
+
+datatype bit_mode = D64 | D32 | D16
 
 definition int_to_u8_list :: "int list \<Rightarrow> u8 list" where
 "int_to_u8_list lp = (map (\<lambda>i. of_int i) lp)"
@@ -343,46 +348,17 @@ definition int_to_u8_list :: "int list \<Rightarrow> u8 list" where
 
 definition init_rs :: "regset" where
 "init_rs = (\<lambda>p. if p = PC then (Vlong 0) else Vundef)"
+          
 
-
-definition intlist_to_reg_cr :: "int list  \<Rightarrow> crbit \<Rightarrow> val" where
-" intlist_to_reg_cr lc =  ( \<lambda> r. 
-    case r of ZF \<Rightarrow> Vlong (of_int (lc!0)) |
-              CF \<Rightarrow> Vlong (of_int (lc!1)) |
-              PF \<Rightarrow> Vlong (of_int (lc!2)) |
-              SF \<Rightarrow> Vlong (of_int (lc!3)) |
-              OF \<Rightarrow> Vlong (of_int (lc!4)) )
-"
-
-definition intlist_to_reg_ir :: "int list  \<Rightarrow> ireg \<Rightarrow> val" where
-" intlist_to_reg_ir lr =  ( \<lambda> r. 
-    case r of RAX \<Rightarrow> Vlong (of_int (lr!0)) |
-              RBX \<Rightarrow> Vlong (of_int (lr!1)) |
-              RCX \<Rightarrow> Vlong (of_int (lr!2)) |
-              RDX \<Rightarrow> Vlong (of_int (lr!3)) |
-              RSI \<Rightarrow> Vlong (of_int (lr!4)) |
-              RDI \<Rightarrow> Vlong (of_int (lr!5)) |
-              RBP \<Rightarrow> Vlong (of_int (lr!6)) |
-              RSP \<Rightarrow> Vlong (of_int (lr!7)) |
-              R8  \<Rightarrow> Vlong (of_int (lr!8)) |
-              R9  \<Rightarrow> Vlong (of_int (lr!9)) |
-              R10 \<Rightarrow> Vlong (of_int (lr!10)) |
-              R11 \<Rightarrow> Vlong (of_int (lr!11)) |
-              R12 \<Rightarrow> Vlong (of_int (lr!12)) |
-              R13 \<Rightarrow> Vlong (of_int (lr!13)) |
-              R14 \<Rightarrow> Vlong (of_int (lr!14)) |
-              R15 \<Rightarrow> Vlong (of_int (lr!15))  
-)"
-
-
-definition intlist_to_reg_map :: "int list \<Rightarrow> int list \<Rightarrow>  regset" where
-" intlist_to_reg_map lc lr = ( \<lambda> r.
+definition intlist_to_reg_map :: "bit_mode \<Rightarrow> u8 list \<Rightarrow> int list \<Rightarrow> int list  \<Rightarrow> regset" where
+" intlist_to_reg_map mode lbin lc lr = ( \<lambda> r.
     case r of PC    \<Rightarrow> Vlong 0 |
            \<comment>\<open> TSC   \<Rightarrow> Vlong 0 |\<close>
               CR cr \<Rightarrow> intlist_to_reg_cr lc cr  |
-              IR ir \<Rightarrow> intlist_to_reg_ir lr ir
+              IR ir \<Rightarrow> (case mode of D64 \<Rightarrow> intlist_to_reg_ir lbin lr ir |
+                                     D32 \<Rightarrow> intlist_to_reg_ir_32 lbin lr  ir |
+                                     D16 \<Rightarrow> intlist_to_reg_ir_16 lbin lr ir )
 )"
-
 
 (*value "(intlist_to_reg_map [0,0,0,0,0] [76,103,30,5,78,11,91,55,13,65,59,98,80,34,84,37] (IR RAX))"*)
 
@@ -409,19 +385,19 @@ fun x64_step :: " x64_bin \<Rightarrow> outcome \<Rightarrow> outcome" where
 )"
 
 
-
 (*x64_step (int_to_u8_list lbin) *)
 
 definition x64_step_test ::
- " int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> bool" where
-"x64_step_test lbin lc lr lm = (
-  let res  = x64_step (int_to_u8_list lbin) 
-                      (Next (intlist_to_reg_map lc lr) 
-                            (u8_list_to_mem (int_to_u8_list lm))) in 
-  (case res of  
-      Stuck \<Rightarrow> False 
-    | Next rs m \<Rightarrow> True)
+ " int \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> int list \<Rightarrow> outcome" where
+"x64_step_test bits lbin lc lr lm  = (
+   let mode = if bits = 64 then D64 else if bits = 32 then D32 else D16 in
+   let res  = x64_step (int_to_u8_list lbin) 
+                      (Next (intlist_to_reg_map mode (int_to_u8_list lbin) lc lr) 
+                            (u8_list_to_mem (int_to_u8_list lm))) in res 
 )"
+
+
+
 
 (*value "case (Next (intlist_to_reg_map [0,0,0,0,0] [76,103,30,5,78,11,91,55,13,65,59,98,80,34,84,37]) (u8_list_to_mem (int_to_u8_list [])) ) of
     Next rs m \<Rightarrow> (

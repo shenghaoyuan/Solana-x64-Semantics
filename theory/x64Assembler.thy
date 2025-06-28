@@ -197,8 +197,8 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
           let (rop::u8) = construct_modsib_to_u8 0b10 0b000 (u8_of_ireg rd) in
             Some ([ rex, op, rop ] @ (u8_list_of_u32 dis) @ (u8_list_of_u32 n)) )
     | _\<Rightarrow> None) |
-  \<comment> \<open> P2883 `MOVXD dwordregister2 to qwordregister1` -> ` 0100 1R0B 0110 0011 : 11 quadreg1 dwordreg2` \<close>
-  Pmovsq_rr rd r1 \<Rightarrow>
+  \<comment> \<open> P2883 `MOVSXD dwordregister2 to qwordregister1` -> ` 0100 1R0B 0110 0011 : 11 quadreg1 dwordreg2` \<close>
+  Pmovsxd_rr rd r1 \<Rightarrow>
     let (rex:: u8) = (construct_rex_to_u8  \<comment> \<open> `1R0B` \<close>
       True \<comment> \<open> W \<close>
       (and (u8_of_ireg rd) 0b1000 \<noteq> 0) \<comment> \<open> R \<close>
@@ -776,6 +776,8 @@ fun x64_encode :: "instruction \<Rightarrow> x64_bin option" where
     let (op:: u8) = 0xd3 in
     let (rop::u8) = construct_modsib_to_u8 0b11 0b111 (u8_of_ireg rd) in
       Some [ rex, op, rop ] |
+
+
   \<comment> \<open> P2877 `BSWAP: register `   -> `0000 1111 : 1100 1 reg` \<close>
   Pbswapl rd  \<Rightarrow>
     let (rex:: u8) = (construct_rex_to_u8  \<comment> \<open> `000B` \<close>
@@ -1023,9 +1025,11 @@ fun x64_assemble :: "x64_asm \<Rightarrow> x64_bin option" where
   )
 )"
 
-value "x64_encode (Pmovq_rr RAX RBX)"
+(*value "x64_encode (Pcmovl Cond_e RAX RAX)"*)
+
+(*value "x64_encode (Pmovq_rr RAX RBX)"
 value "x64_encode (Paddq_rr RAX RBX)"
-value "x64_encode (Paddl_rr RDI RCX)"
+value "x64_encode (Paddl_rr RDI RCX)"*)
 
 (*
 definition x64_encode :: "instruction \<Rightarrow> x64_bin \<Rightarrow> x64_bin option" where
