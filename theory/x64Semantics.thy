@@ -54,15 +54,29 @@ definition eval_addrmode64 :: "addrmode \<Rightarrow> regset \<Rightarrow> u64 o
   case eval_addrmode64_val a rs of
   Vlong v \<Rightarrow> Some v |
   _ \<Rightarrow> None
-)"
+)"     
 
 definition compare_ints :: "val \<Rightarrow> val \<Rightarrow> regset \<Rightarrow> regset" where
-"compare_ints x y rs = (((((
+"compare_ints x y rs =(
+    let r  = Val.sub32 x y in(((((
+    rs#(CR ZF) <- (Val.cmpu Ceq r (Vint 0)))
+    #(CR CF) <- (Val.cmpu Clt x y))
+    #(CR SF) <- (Val.negative32 r))
+    #(CR OF) <- (Val.sub_overflow32 x y))
+    #(CR PF) <- Vundef)
+)"
+
+(*value "Val.cmpu Clt (Vint 0xDE6FB620) (Vint 0x95F74894)"*)
+
+(*value "Val.sub_overflow32 (Vint 0xC153D34C) (Vint 3864057205)"*)
+                                
+(*definition compare_ints1 :: "val \<Rightarrow> val \<Rightarrow> regset \<Rightarrow> regset" where
+"compare_ints1 x y rs = (((((
   rs#(CR ZF) <- (Val.cmpu Ceq x y))
     #(CR CF) <- (Val.cmpu Clt x y))
     #(CR SF) <- (Val.negative32 (Val.sub32 x y)))
     #(CR OF) <- (Val.sub_overflow32 x y))
-    #(CR PF) <- Vundef)"
+    #(CR PF) <- Vundef)"*)
 
 definition compare_longs :: "val \<Rightarrow> val \<Rightarrow> regset \<Rightarrow> regset" where
 "compare_longs x y rs = (((((
@@ -71,6 +85,8 @@ definition compare_longs :: "val \<Rightarrow> val \<Rightarrow> regset \<Righta
     #(CR SF) <- (Val.negative64 (Val.sub64 x y)))
     #(CR OF) <- (Val.sub_overflow64 x y))
     #(CR PF) <- Vundef)"
+
+(*value "Val.sub_overflow64 (Vlong 0x2F1ACB7B517E9C8C) (Vlong 0x8D22640551F23276)"*)
 
 definition eval_testcond :: "testcond \<Rightarrow> regset \<Rightarrow> bool option" where
 "eval_testcond c rs = (
@@ -241,7 +257,7 @@ definition exec_instr :: "instruction \<Rightarrow> u64 \<Rightarrow> regset \<R
                         None \<Rightarrow> Stuck| 
                         Some m' \<Rightarrow> Next (nextinstr_nf sz rs) m'))) |  \<comment> \<open>store imm32 to mem32/64 \<close>
   \<comment> \<open> Moves with conversion \<close>
-  Pmovsxd_rr rd r1 \<Rightarrow> Next (nextinstr    sz (rs#(IR rd) <- (Val.longofints(rs (IR r1))))) m |
+  Pmovsl_rr rd r1 \<Rightarrow> Next (nextinstr    sz (rs#(IR rd) <- (Val.longofints(rs (IR r1))))) m |
   Pcdq            \<Rightarrow> Next (nextinstr    sz (rs#(IR RDX)<- (Val.signex32(rs (IR RAX))))) m | \<comment> \<open>sign_extend_eax_edx \<close>
   Pcqo            \<Rightarrow> Next (nextinstr    sz (rs#(IR RDX)<- (Val.signex64(rs (IR RAX))))) m | \<comment> \<open>sign_extend_rax_rdx \<close>
   \<comment> \<open> Integer arithmetic \<close>

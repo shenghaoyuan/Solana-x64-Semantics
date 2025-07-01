@@ -6,18 +6,44 @@ theory Val
   rBPFCommType
 begin
 
-definition sub_overflowi32 :: "u32 \<Rightarrow> u32 \<Rightarrow> u32 \<Rightarrow> u32" where
-"sub_overflowi32 x y bin = (
+definition msb32 :: "u32 \<Rightarrow> bool" where
+"msb32 x = (sint x < 0)"
+
+definition msb64 :: "u64 \<Rightarrow> bool" where
+"msb64 x = (sint x < 0)"
+
+(*definition sub_overflowi321 :: "u32 \<Rightarrow> u32 \<Rightarrow> u32 \<Rightarrow> u32" where
+"sub_overflowi321 x y bin = (
   let s = (scast x) - (scast y) - (scast bin) in
     if i32_MIN \<le>s s \<and> s \<le>s i32_MAX then 0 else 1
+)"*)
+
+definition sub_overflowi32 :: "u32 \<Rightarrow> u32 \<Rightarrow> u32 \<Rightarrow> u32" where
+"sub_overflowi32 x y bin = (
+ let x_sign = msb32 x;
+      y_sign = msb32 y;
+      res = x - y;
+      res_sign = msb32 res
+  in
+  if (x_sign \<noteq> y_sign) \<and> (res_sign \<noteq> x_sign) then 1 else 0
 )"
 
 definition sub_overflowi64 :: "u64 \<Rightarrow> u64 \<Rightarrow> u64 \<Rightarrow> u64" where
 "sub_overflowi64 x y bin = (
+  let x_msb = msb64 x;
+      y_msb = msb64 y;
+      res = x - y;
+      res_msb = msb64 res
+  in
+  if (x_msb \<noteq> y_msb) \<and> (res_msb \<noteq> x_msb) then 1 else 0
+)"
+
+(*definition sub_overflowi64 :: "u64 \<Rightarrow> u64 \<Rightarrow> u64 \<Rightarrow> u64" where
+"sub_overflowi64 x y bin = (
   let s = (scast x) - (scast y) - (scast bin) in
     if i64_MIN \<le>s s \<and> s \<le>s i64_MAX then 0 else 1
 )"
-
+*)
 
 datatype val = Vundef | Vbyte u8 | Vshort u16 | Vint u32 | Vlong u64
 
@@ -89,7 +115,8 @@ definition signex32 :: "val \<Rightarrow> val" where
         (Vint d)|
       _ \<Rightarrow> Vundef
 )"
- \<comment> \<open> value "signex32 (Vint 0xFFFF8000)" \<close>
+
+ (*value "signex32 (Vint 0xFFFF8000)" *)
 
 definition neg32 :: "val \<Rightarrow> val" where
 "neg32 v = (
@@ -253,6 +280,8 @@ definition negative32 :: "val \<Rightarrow> val" where
   _ \<Rightarrow> Vundef
 )"
 
+(*value "negative32 (sub32 (Vint 0xF0000000) (Vint 0x0))"*)
+
 definition or32 :: "val \<Rightarrow> val \<Rightarrow> val" where
 "or32 v1 v2 = (
   case v1 of
@@ -307,12 +336,13 @@ definition sar32 :: "val \<Rightarrow> val \<Rightarrow> val"  where
      | _ \<Rightarrow> Vundef)
    | _ \<Rightarrow> Vundef)"
 
+
 definition ror32 :: "val \<Rightarrow> val \<Rightarrow> val" where
 "ror32 v n = (                                                   
   case v of                     
-  Vshort v1 \<Rightarrow> (case n of Vbyte n1 \<Rightarrow>
-    let  n1 = n1 mod 32 in
-     Vshort (Bit_Operations.or (v1 >> (unat n1)) (v1 << (unat (32 - n1))))
+  Vint v1 \<Rightarrow> (case n of Vbyte n1 \<Rightarrow>
+    let n1 = n1 mod 32 in
+     Vint (Bit_Operations.or (v1 >> (unat n1)) (v1 << (unat (32 - n1))))
   | _ \<Rightarrow> Vundef)  
  |  _ \<Rightarrow> Vundef
 )"
@@ -558,19 +588,21 @@ definition sar64 :: "val \<Rightarrow> val \<Rightarrow> val"  where
 (*value "sar64 (Vlong 0xB1341E1CC2072557) (Vbyte 3)"*)
 
 definition ror64 :: "val \<Rightarrow> val \<Rightarrow> val" where
-"ror64 v n = (
-  case v of                     
-  Vshort v1 \<Rightarrow> (case n of Vbyte n1 \<Rightarrow>
-    let  n1 = n1 mod 64 in
-     Vshort (Bit_Operations.or (v1 >> (unat n1)) (v1 << (unat (32 - n1))))
+"ror64 v1 v2 = (
+  case v1 of                     
+    Vlong n1 \<Rightarrow> (case v2 of Vbyte n2 \<Rightarrow> 
+    let n2 = n2 mod 64 in
+     Vlong (Bit_Operations.or (n1 >> (unat n2)) (n1 << (unat (64 - n2))))
   | _ \<Rightarrow> Vundef)  
  |  _ \<Rightarrow> Vundef
 )"
 
+(*value "ror64 (Vlong 0xF7E5767F7D94FC2A) (Vbyte 24)"*)
+ 
 definition bswap64 :: "val \<Rightarrow> val" where
 "bswap64 v = (
   case v of 
-    Vint n \<Rightarrow> (
+    Vlong n \<Rightarrow> (
       let byte0 = (and n 0xFF) << 56 in
       let byte1 = (and n 0xFF00) << 40 in
       let byte2 = (and n 0xFF0000) << 24 in
@@ -579,7 +611,7 @@ definition bswap64 :: "val \<Rightarrow> val" where
       let byte5 = (and n 0xFF0000000000) >> 24 in
       let byte6 = (and n 0xFF000000000000) >> 40 in
       let byte7 = (and n 0xFF00000000000000) >> 56 in
-      Vint (or (or (or (or (or (or (or byte0 byte1) byte2) byte3) byte4) byte5) byte6) byte7)
+      Vlong (or (or (or (or (or (or (or byte0 byte1) byte2) byte3) byte4) byte5) byte6) byte7)
     )
   | _ \<Rightarrow> Vundef
 )"

@@ -328,10 +328,14 @@ definition x64_decode_op_not_rex :: "u8 \<Rightarrow> nat \<Rightarrow> x64_bin 
         else if modrm = 0b11 \<and> reg1 = 0b101 then 
           case ireg_of_u8 dst of None \<Rightarrow> None | Some dst \<Rightarrow> (
              Some (3, Pshrl_ri dst imm))
-        \<comment> \<open> P2888 `SAR register by immediate count`      -> `1100 000w : 11 111 reg : imm8 ` \<close>
+        \<comment> \<open> P2890 `SAR register by immediate count`      -> ` 1100 000w : 11 111 reg : imm8 ` \<close>
         else if modrm = 0b11 \<and> reg1 = 0b111 then 
           case ireg_of_u8 dst of None \<Rightarrow> None | Some dst \<Rightarrow> (
              Some (3, Psarl_ri dst imm))
+        \<comment> \<open> P2888 `ROR register by immediate count`      -> ` 1100 000w : 11 001 reg : imm8 ` \<close>
+        else if modrm = 0b11 \<and> reg1 = 0b001 then 
+          case ireg_of_u8 dst of None \<Rightarrow> None | Some dst \<Rightarrow> (
+             Some (3, Prorl_ri dst imm))
          else None)
     else if h = 0x81 then
       if modrm = 0b11 then
@@ -670,7 +674,7 @@ definition x64_decode :: "nat \<Rightarrow> x64_bin \<Rightarrow> (nat * instruc
               case ireg_of_u8 src of None \<Rightarrow> None | Some src \<Rightarrow> (
               case ireg_of_u8 dst of None \<Rightarrow> None | Some dst \<Rightarrow> (
                 if w = 1 \<and> x = 0 then
-                  Some (3, Pmovsxd_rr src dst )
+                  Some (3, Pmovsl_rr src dst )
                 else None)))
             else None
           else if op = 0x01 then
@@ -931,6 +935,13 @@ definition x64_decode :: "nat \<Rightarrow> x64_bin \<Rightarrow> (nat * instruc
               case ireg_of_u8 dst of None \<Rightarrow> None | Some dst \<Rightarrow> (
                 if w = 1 \<and> x = 0 \<and> r = 0 then Some (4, Psarq_ri dst imm)
                 else if w = 0 \<and> x = 0 \<and> r = 0 then Some (4, Psarl_ri dst imm)
+                else None)
+        \<comment> \<open> P2888 `ROR register by immediate count`      -> ` 0100 000B 1100 000w : 11 001 reg : imm8 ` \<close>
+        \<comment> \<open> P2888 `ROR qwordregister by immediate count` -> ` 0100 100B 1100 000w : 11 001 reg : imm8 ` \<close>
+            else if modrm = 0b11 \<and> reg1 = 0b001 then 
+              case ireg_of_u8 dst of None \<Rightarrow> None | Some dst \<Rightarrow> (
+                if w = 1 \<and> x = 0 \<and> r = 0 then Some (4, Prorq_ri dst imm)
+                else if w = 0 \<and> x = 0 \<and> r = 0 then Some (4, Prorl_ri dst imm)
                 else None)
             else None)
     \<comment> \<open> R6.5 [rex + opcode + modrm + displacement] \<close>

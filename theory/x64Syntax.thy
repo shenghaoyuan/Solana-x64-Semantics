@@ -178,7 +178,7 @@ datatype instruction =
   | Pxchgq_rr ireg ireg
   | Pxchgq_rm ireg addrmode memory_chunk
   (** Moves with conversion *)
-  | Pmovsxd_rr ireg ireg     (**r [movxd] (32-bit sign-extension) *)
+  | Pmovsl_rr ireg ireg     (**r [movxd] (32-bit sign-extension) *)
   | Pcdq 
   | Pcqo
   (** Integer arithmetic *)

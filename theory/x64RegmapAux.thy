@@ -71,22 +71,22 @@ definition intlist_to_reg_ir_16 :: "x64_bin  \<Rightarrow> int list  \<Rightarro
 " intlist_to_reg_ir_16 lbin lr = ( 
   case (x64_decode 0 lbin) of Some (_, ins) \<Rightarrow> 
     (\<lambda> r.
-      case r of RAX \<Rightarrow> Vbyte (of_int (lr!0)) |
-                RBX \<Rightarrow> Vbyte (of_int (lr!1)) |
-                RCX \<Rightarrow> Vbyte (of_int (lr!2)) |
-                RDX \<Rightarrow> Vbyte (of_int (lr!3)) |
-                RSI \<Rightarrow> Vbyte (of_int (lr!4)) |
-                RDI \<Rightarrow> Vbyte (of_int (lr!5)) |
-                RBP \<Rightarrow> Vbyte (of_int (lr!6)) |
-                RSP \<Rightarrow> Vbyte (of_int (lr!7)) |
-                R8  \<Rightarrow> Vbyte (of_int (lr!8)) |
-                R9  \<Rightarrow> Vbyte (of_int (lr!9)) |
-                R10 \<Rightarrow> Vbyte (of_int (lr!10)) |
-                R11 \<Rightarrow> Vbyte (of_int (lr!11)) |
-                R12 \<Rightarrow> Vbyte (of_int (lr!12)) |
-                R13 \<Rightarrow> Vbyte (of_int (lr!13)) |
-                R14 \<Rightarrow> Vbyte (of_int (lr!14)) |
-                R15 \<Rightarrow> Vbyte (of_int (lr!15)) ) | 
+      case r of RAX \<Rightarrow> Vshort (of_int (lr!0)) |
+                RBX \<Rightarrow> Vshort (of_int (lr!1)) |
+                RCX \<Rightarrow> Vshort (of_int (lr!2)) |
+                RDX \<Rightarrow> Vshort (of_int (lr!3)) |
+                RSI \<Rightarrow> Vshort (of_int (lr!4)) |
+                RDI \<Rightarrow> Vshort (of_int (lr!5)) |
+                RBP \<Rightarrow> Vshort (of_int (lr!6)) |
+                RSP \<Rightarrow> Vshort (of_int (lr!7)) |
+                R8  \<Rightarrow> Vshort (of_int (lr!8)) |
+                R9  \<Rightarrow> Vshort (of_int (lr!9)) |
+                R10 \<Rightarrow> Vshort (of_int (lr!10)) |
+                R11 \<Rightarrow> Vshort (of_int (lr!11)) |
+                R12 \<Rightarrow> Vshort (of_int (lr!12)) |
+                R13 \<Rightarrow> Vshort (of_int (lr!13)) |
+                R14 \<Rightarrow> Vshort (of_int (lr!14)) |
+                R15 \<Rightarrow> Vshort (of_int (lr!15)) ) | 
    None \<Rightarrow> 
     (\<lambda> r. Vundef)
     
